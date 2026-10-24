@@ -112,6 +112,9 @@ android {
         versionName getVersionName()
         multiDexEnabled true //important
         resValue 'string', 'curseforge_api_key', getCFApiKey()
+        // amethyst:// links; the debug build has its own scheme, so a link never has two handlers
+        manifestPlaceholders = [linkScheme: 'amethyst']
+        resValue 'string', 'link_scheme', 'amethyst'
         externalNativeBuild {
             ndkBuild {
                 // Fix for Windows command line length limit
@@ -123,6 +126,8 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix '.debug'
+            manifestPlaceholders = [linkScheme: 'amethyst-debug']
+            resValue 'string', 'link_scheme', 'amethyst-debug'
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

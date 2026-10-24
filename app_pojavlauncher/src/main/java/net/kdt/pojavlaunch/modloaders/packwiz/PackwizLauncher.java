@@ -83,7 +83,7 @@ public final class PackwizLauncher {
     }
 
     /** The mod loader the pack asks for; null for a vanilla pack. */
-    static ModLoader loaderOf(PackToml pack) throws PackwizException {
+    public static ModLoader loaderOf(PackToml pack) throws PackwizException {
         String loader = pack.loader();
         if (loader == null) return null;
         switch (loader) {
