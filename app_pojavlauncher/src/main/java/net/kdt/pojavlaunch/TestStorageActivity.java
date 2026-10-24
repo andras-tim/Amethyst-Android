@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import net.kdt.pojavlaunch.links.LinkRouter;
 import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 import net.kdt.pojavlaunch.tasks.AsyncAssetManager;
 
@@ -67,6 +68,10 @@ public class TestStorageActivity extends Activity {
         AsyncAssetManager.unpackSingleFiles(this);
 
         Intent intent =  new Intent(this, LauncherActivity.class);
+        if (LinkRouter.isLink(getIntent())) {
+            // a running launcher gets the link through onNewIntent instead of a second copy
+            intent.setData(getIntent().getData()).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        }
         startActivity(intent);
         finish();
     }

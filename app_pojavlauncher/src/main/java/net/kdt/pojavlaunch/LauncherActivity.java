@@ -9,6 +9,7 @@ import static net.kdt.pojavlaunch.Tools.isOnline;
 import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
@@ -44,6 +45,7 @@ import net.kdt.pojavlaunch.lifecycle.ContextExecutor;
 import net.kdt.pojavlaunch.modloaders.LWJGL3ifyUtils;
 import net.kdt.pojavlaunch.modloaders.modpacks.ModloaderInstallTracker;
 import net.kdt.pojavlaunch.modloaders.packwiz.PackwizLauncher;
+import net.kdt.pojavlaunch.links.LinkRouter;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.CommonApi;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModLoader;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModpackInstaller;
@@ -358,6 +360,20 @@ public class LauncherActivity extends BaseActivity {
         mProgressLayout.observe(ProgressLayout.SYNC_PACK);
         mProgressLayout.observe(ProgressLayout.AUTHENTICATE_MICROSOFT);
         mProgressLayout.observe(ProgressLayout.DOWNLOAD_VERSION_LIST);
+
+        // a recreated activity (rotation) gets the same intent again
+        if (savedInstanceState == null) handleLink(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleLink(intent);
+    }
+
+    private void handleLink(Intent intent) {
+        if (LinkRouter.isLink(intent)) LinkRouter.handle(this, intent.getData());
     }
 
     @Override
