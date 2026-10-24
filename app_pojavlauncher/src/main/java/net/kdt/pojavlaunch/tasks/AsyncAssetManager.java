@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AsyncAssetManager {
 
@@ -61,6 +63,62 @@ public class AsyncAssetManager {
                 Log.e("JREAuto", "Internal JRE unpack failed", e);
             }
         });
+    }
+
+    private static final String BUNDLED_RUNTIME_DIR = "components/bundled-jre";
+    private static final Pattern BUNDLED_RUNTIME_FILE = Pattern.compile("jre(\\d+)-android-(.+)\\.tar\\.xz");
+
+    /**
+     * Installs the JREs the build put in the APK as release tarballs (jre17-android-arm64.tar.xz, the files the
+     * launcher would otherwise download) under the name the download uses, "External-17", so they are never
+     * downloaded. The tarball's sha256 next to it tells whether the installed copy is current.
+     * @param am App context
+     */
+    public static void unpackBundledRuntimes(AssetManager am) {
+        String[] files;
+        try {
+            files = am.list(BUNDLED_RUNTIME_DIR);
+        } catch (IOException e) {
+            return;
+        }
+        if (files == null) return;
+        String deviceArch = archAsString(Tools.DEVICE_ARCHITECTURE);
+        for (String file : files) {
+            Matcher match = BUNDLED_RUNTIME_FILE.matcher(file);
+            if (!match.matches() || !match.group(2).equals(deviceArch)) continue;
+            String name = "External-" + match.group(1);
+            String path = BUNDLED_RUNTIME_DIR + "/" + file;
+            String version;
+            try {
+                version = Tools.read(am.open(path + ".sha256")).trim();
+            } catch (IOException e) {
+                Log.e("JREAuto", "Bundled " + file + " has no sha256", e);
+                continue;
+            }
+            if (version.equals(MultiRTUtils.readInternalRuntimeVersion(name))) {
+                useAsDefaultIfNoneValid(name);
+                continue;
+            }
+            sExecutorService.execute(() -> {
+                try (InputStream tarball = am.open(path)) {
+                    MultiRTUtils.installRuntimeNamed(Tools.NATIVE_LIB_DIR, tarball, name);
+                    MultiRTUtils.postPrepare(name);
+                    Tools.write(new File(MultiRTUtils.getRuntimeHome(name), "pojav_version").getAbsolutePath(), version);
+                    useAsDefaultIfNoneValid(name);
+                } catch (IOException e) {
+                    Log.e("JREAuto", "Bundled " + file + " unpack failed", e);
+                }
+            });
+        }
+    }
+
+    /** A build without the internal runtime (components/jre) may leave the default runtime unset or pointing at nothing. */
+    private static void useAsDefaultIfNoneValid(String name) {
+        if (LauncherPreferences.DEFAULT_PREF == null) return;  // no storage yet: preferences are not loaded
+        String current = LauncherPreferences.PREF_DEFAULT_RUNTIME;
+        if (current != null && !current.isEmpty() && MultiRTUtils.forceReread(current).versionString != null) return;
+        LauncherPreferences.PREF_DEFAULT_RUNTIME = name;
+        LauncherPreferences.DEFAULT_PREF.edit().putString("defaultRuntime", name).apply();
     }
 
     /** Unpack single files, with no regard to version tracking */
