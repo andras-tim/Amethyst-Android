@@ -105,7 +105,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "org.angelauramc.amethyst"
+        applicationId "hu.dras.amethyst"
         minSdkVersion 21
         targetSdkVersion 34
         versionCode 10000000
@@ -132,11 +132,11 @@ android {
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.customDebug
-            resValue "string", "app_name", "Amethyst (Debug)"
-            resValue "string", "app_short_name", "Amethyst (Debug)"
-            resValue 'string', 'application_package', 'org.angelauramc.amethyst.debug'
-            resValue 'string', 'storageProviderAuthorities', 'org.angelauramc.amethyst.scoped.gamefolder.debug'
-            resValue 'string', 'shareProviderAuthority', 'org.angelauramc.amethyst.scoped.controlfolder.debug'
+            resValue "string", "app_name", "Amethyst::Dras (Debug)"
+            resValue "string", "app_short_name", "Amethyst::Dras (Debug)"
+            resValue 'string', 'application_package', 'hu.dras.amethyst.debug'
+            resValue 'string', 'storageProviderAuthorities', 'hu.dras.amethyst.scoped.gamefolder.debug'
+            resValue 'string', 'shareProviderAuthority', 'hu.dras.amethyst.scoped.controlfolder.debug'
         }
         proguard {
             initWith debug
@@ -156,10 +156,10 @@ android {
             // defaultConfig already set
             // multiDexEnabled = true
             // debuggable = true
-            resValue "string", "app_name", "Amethyst"
-            resValue "string", "app_short_name", "Amethyst"
-            resValue 'string', 'storageProviderAuthorities', 'org.angelauramc.amethyst.scoped.gamefolder'
-            resValue 'string', 'application_package', 'org.angelauramc.amethyst'
+            resValue "string", "app_name", "Amethyst::Dras"
+            resValue "string", "app_short_name", "Amethyst::Dras"
+            resValue 'string', 'storageProviderAuthorities', 'hu.dras.amethyst.scoped.gamefolder'
+            resValue 'string', 'application_package', 'hu.dras.amethyst'
         }
         gplay {
             initWith release
