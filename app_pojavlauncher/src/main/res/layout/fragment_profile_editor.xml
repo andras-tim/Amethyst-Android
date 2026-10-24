@@ -202,6 +202,28 @@
                 app:layout_constraintTop_toTopOf="@id/vprof_editor_path" />
 
             <TextView
+                android:id="@+id/vprof_editor_packwiz_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/packwiz_url_label"
+                app:layout_constraintBottom_toTopOf="@+id/vprof_editor_packwiz_url"
+                app:layout_constraintStart_toStartOf="@+id/vprof_editor_packwiz_url" />
+
+            <EditText
+                android:id="@+id/vprof_editor_packwiz_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:background="@drawable/background_line"
+                android:ems="10"
+                android:hint="@string/packwiz_url_hint"
+                android:inputType="textUri"
+                android:paddingHorizontal="@dimen/padding_heavy"
+                android:textSize="@dimen/_13ssp"
+
+                app:layout_constraintTop_toBottomOf="@+id/vprof_editor_path" />
+
+            <TextView
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -218,7 +240,7 @@
                 android:paddingVertical="0px"
 
 
-                app:layout_constraintTop_toBottomOf="@+id/vprof_editor_path"
+                app:layout_constraintTop_toBottomOf="@+id/vprof_editor_packwiz_url"
 
                 tools:paddingVertical="@dimen/_12sdp" />
 

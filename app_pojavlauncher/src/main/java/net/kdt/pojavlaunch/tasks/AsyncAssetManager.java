@@ -112,6 +112,16 @@ public class AsyncAssetManager {
         }
     }
 
+    /** Whether the APK bundles Java {@code major} for this device, so a caller can wait for exactly that one. */
+    public static boolean hasBundledRuntime(AssetManager am, int major) {
+        String path = BUNDLED_RUNTIME_DIR + "/jre" + major + "-android-" + archAsString(Tools.DEVICE_ARCHITECTURE) + ".tar.xz";
+        try (InputStream ignored = am.open(path)) {
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     /** A build without the internal runtime (components/jre) may leave the default runtime unset or pointing at nothing. */
     private static void useAsDefaultIfNoneValid(String name) {
         if (LauncherPreferences.DEFAULT_PREF == null) return;  // no storage yet: preferences are not loaded

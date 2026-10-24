@@ -43,6 +43,7 @@ import net.kdt.pojavlaunch.lifecycle.ContextAwareDoneListener;
 import net.kdt.pojavlaunch.lifecycle.ContextExecutor;
 import net.kdt.pojavlaunch.modloaders.LWJGL3ifyUtils;
 import net.kdt.pojavlaunch.modloaders.modpacks.ModloaderInstallTracker;
+import net.kdt.pojavlaunch.modloaders.packwiz.PackwizLauncher;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.CommonApi;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModLoader;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModpackInstaller;
@@ -233,6 +234,16 @@ public class LauncherActivity extends BaseActivity {
             }
         }
 
+        if (PackwizLauncher.hasPack(prof)) {
+            // the sync may move the profile to another Minecraft or loader version, so the version is read after it
+            PackwizLauncher.syncThenLaunch(this, prof, () -> startGame(prof));
+            return false;
+        }
+        startGame(prof);
+        return false;
+    };
+
+    private void startGame(MinecraftProfile prof) {
         String normalizedVersionId = AsyncMinecraftDownloader.normalizeVersionId(prof.lastVersionId);
         JMinecraftVersionList.Version mcVersion = AsyncMinecraftDownloader.getListedVersion(normalizedVersionId);
 
@@ -248,7 +259,7 @@ public class LauncherActivity extends BaseActivity {
 
             if (isOlderThan13) {
                 hasNoOnlineProfileDialog(this, getString(R.string.global_error), getString(R.string.demo_versions_supported));
-                return false;
+                return;
             }
         }
 
@@ -258,8 +269,7 @@ public class LauncherActivity extends BaseActivity {
                 normalizedVersionId,
                 new ContextAwareDoneListener(this, normalizedVersionId)
         );
-        return false;
-    };
+    }
 
     private final TaskCountListener mDoubleLaunchPreventionListener = taskCount -> {
         // Hide the notification that starts the game if there are tasks executing.
@@ -345,6 +355,7 @@ public class LauncherActivity extends BaseActivity {
         mProgressLayout.observe(ProgressLayout.DOWNLOAD_MINECRAFT);
         mProgressLayout.observe(ProgressLayout.UNPACK_RUNTIME);
         mProgressLayout.observe(ProgressLayout.INSTALL_MODPACK);
+        mProgressLayout.observe(ProgressLayout.SYNC_PACK);
         mProgressLayout.observe(ProgressLayout.AUTHENTICATE_MICROSOFT);
         mProgressLayout.observe(ProgressLayout.DOWNLOAD_VERSION_LIST);
     }

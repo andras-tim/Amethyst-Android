@@ -518,4 +518,12 @@
     <string name="import_modpack_json">Reading modpack info…</string>
     <string name="import_modpack_copy">Copying modpack file to cache… (%s MB/ %s MB)</string>
 
+    <!-- packwiz pack sync -->
+    <string name="packwiz_url_label">Packwiz pack URL</string>
+    <string name="packwiz_url_hint">https://…/pack.toml (optional)</string>
+    <string name="packwiz_progress_checking">Checking the pack</string>
+    <string name="packwiz_sync_failed_title">The pack could not be updated</string>
+    <string name="packwiz_play_installed">Play installed version</string>
+    <string name="packwiz_share_log">Share log</string>
+    <string name="packwiz_installing_loader">Installing %1$s %2$s. Press Play again when the installer has finished.</string>
 </resources>

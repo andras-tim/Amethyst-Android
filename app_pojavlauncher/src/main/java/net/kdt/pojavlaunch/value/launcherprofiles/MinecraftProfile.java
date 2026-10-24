@@ -22,6 +22,8 @@ public class MinecraftProfile {
 	public String pojavRendererName;
 	public String controlFile;
 	public MinecraftResolution[] resolution;
+	/** pack.toml of a packwiz pack synced into gameDir before every launch; null for a plain profile. */
+	public String packwizUrl;
 
 
 	public static MinecraftProfile createTemplate(){
@@ -55,5 +57,6 @@ public class MinecraftProfile {
 		pojavRendererName = profile.pojavRendererName;
 		controlFile = profile.controlFile;
 		resolution = profile.resolution;
+		packwizUrl = profile.packwizUrl;
 	}
 }
