@@ -84,5 +84,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           test -f out/amethyst-dras.apk || { echo "A release needs the signing secrets"; exit 1; }
-          # the changelog is the signed tag's message
+          # actions/checkout leaves the tag lightweight; the changelog is the annotated tag's message
+          git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
           gh release create "$GITHUB_REF_NAME" out/amethyst-dras.apk out/SHA256SUMS --title "$GITHUB_REF_NAME" --notes-from-tag
