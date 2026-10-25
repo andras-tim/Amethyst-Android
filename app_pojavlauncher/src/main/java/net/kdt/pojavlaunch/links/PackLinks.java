@@ -41,6 +41,19 @@ final class PackLinks {
         return value == null || value.trim().isEmpty() ? null : value.trim();
     }
 
+    /** The "ram" parameter in MB; 0 when missing (the profile then uses the global setting). */
+    static int ramParameter(Uri link) throws PackwizException {
+        String value = optionalParameter(link, "ram");
+        if (value == null) return 0;
+        try {
+            int ram = Integer.parseInt(value);
+            if (ram >= 512) return ram;
+        } catch (NumberFormatException ignored) {
+            // reported below
+        }
+        throw new PackwizException("The link's \"ram\" parameter must be a number of MB (at least 512): " + value);
+    }
+
     /** Downloads and checks pack.toml, so the confirmation can show what the link adds. */
     static PackToml fetchPack(String url) throws IOException {
         String checked = PackPaths.checkUrl(url, "pack.toml");

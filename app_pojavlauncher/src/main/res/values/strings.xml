@@ -520,6 +520,7 @@
 
     <!-- packwiz pack sync -->
     <string name="packwiz_url_label">Packwiz pack URL</string>
+    <string name="profile_ram_label">Memory (MB)</string>
     <string name="packwiz_url_hint">https://…/pack.toml (optional)</string>
     <string name="packwiz_progress_checking">Checking the pack</string>
     <string name="packwiz_sync_failed_title">The pack could not be updated</string>
@@ -534,6 +535,7 @@
     <string name="link_import_message">Profile: %1$s\nPack: %2$s\nMinecraft %3$s\nFrom: %4$s\n\nThe pack\'s files are downloaded when you press Play.</string>
     <string name="link_import_existing">A profile for this pack already exists: %1$s\nPack: %2$s\nMinecraft %3$s\n\nIt will be selected.</string>
     <string name="link_import_confirm">Add</string>
+    <string name="link_import_ram">Memory: %1$d MB</string>
     <string name="link_import_done">Profile added: %1$s</string>
     <string name="link_select">Select</string>
     <string name="link_selected">Profile selected: %1$s</string>
