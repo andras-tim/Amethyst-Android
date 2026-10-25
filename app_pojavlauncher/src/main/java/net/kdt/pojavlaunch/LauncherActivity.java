@@ -373,7 +373,7 @@ public class LauncherActivity extends BaseActivity {
     }
 
     private void handleLink(Intent intent) {
-        if (LinkRouter.isLink(intent)) LinkRouter.handle(this, intent.getData());
+        if (LinkRouter.isLink(this, intent)) LinkRouter.handle(this, intent.getData());
     }
 
     @Override

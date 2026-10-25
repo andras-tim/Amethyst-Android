@@ -68,7 +68,7 @@ public class TestStorageActivity extends Activity {
         AsyncAssetManager.unpackSingleFiles(this);
 
         Intent intent =  new Intent(this, LauncherActivity.class);
-        if (LinkRouter.isLink(getIntent())) {
+        if (LinkRouter.isLink(this, getIntent())) {
             // a running launcher gets the link through onNewIntent instead of a second copy
             intent.setData(getIntent().getData()).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         }

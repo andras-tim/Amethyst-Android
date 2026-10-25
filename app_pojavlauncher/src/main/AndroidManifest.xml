@@ -59,7 +59,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="amethyst" />
+                <data android:scheme="${linkScheme}" />
             </intent-filter>
         </activity>
         <activity

@@ -2,6 +2,7 @@ package net.kdt.pojavlaunch.links;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
@@ -16,12 +17,12 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Opens amethyst://&lt;command&gt;?&lt;params&gt; links, e.g. amethyst://profile/import?url=https://.../pack.toml.
+ * Opens amethyst://&lt;command&gt;?&lt;params&gt; links, e.g. amethyst://profile/import?url=https://.../pack.toml
+ * (the debug build: amethyst-debug://).
  * Every command first prepares (network, parsing) off the UI thread, then shows what it will change; nothing
  * changes before the player confirms.
  */
 public final class LinkRouter {
-    public static final String SCHEME = "amethyst";
     private static final String TAG = "LinkRouter";
     private static final Map<String, LinkCommand> COMMANDS = new LinkedHashMap<>();
 
@@ -32,9 +33,9 @@ public final class LinkRouter {
 
     private LinkRouter() {}
 
-    public static boolean isLink(Intent intent) {
+    public static boolean isLink(Context context, Intent intent) {
         Uri data = intent == null ? null : intent.getData();
-        return data != null && SCHEME.equalsIgnoreCase(data.getScheme());
+        return data != null && context.getString(R.string.link_scheme).equalsIgnoreCase(data.getScheme());
     }
 
     public static void handle(Activity activity, Uri link) {
