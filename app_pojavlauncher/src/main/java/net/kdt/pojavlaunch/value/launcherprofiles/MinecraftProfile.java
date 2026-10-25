@@ -24,6 +24,8 @@ public class MinecraftProfile {
 	public MinecraftResolution[] resolution;
 	/** pack.toml of a packwiz pack synced into gameDir before every launch; null for a plain profile. */
 	public String packwizUrl;
+	/** Java heap in MB for this profile; 0 means the global setting. */
+	public int ramAllocation;
 
 
 	public static MinecraftProfile createTemplate(){
@@ -58,5 +60,6 @@ public class MinecraftProfile {
 		controlFile = profile.controlFile;
 		resolution = profile.resolution;
 		packwizUrl = profile.packwizUrl;
+		ramAllocation = profile.ramAllocation;
 	}
 }

@@ -52,7 +52,7 @@ public class ProfileEditorFragment extends Fragment implements CropperUtils.Crop
     private String mValueToConsume = "";
     private Button mSaveButton, mDeleteButton, mControlSelectButton, mGameDirButton, mVersionSelectButton;
     private Spinner mDefaultRuntime, mDefaultRenderer;
-    private EditText mDefaultName, mDefaultJvmArgument, mPackwizUrl;
+    private EditText mDefaultName, mDefaultJvmArgument, mPackwizUrl, mRamAllocation;
     private TextView mDefaultPath, mDefaultVersion, mDefaultControl;
     private ImageView mProfileIcon;
     private final ActivityResultLauncher<?> mCropperLauncher = CropperUtils.registerCropper(this, this);
@@ -197,6 +197,7 @@ public class ProfileEditorFragment extends Fragment implements CropperUtils.Crop
         mDefaultPath.setText(mTempProfile.gameDir == null ? "" : mTempProfile.gameDir);
         mDefaultControl.setText(mTempProfile.controlFile == null ? "" : mTempProfile.controlFile);
         mPackwizUrl.setText(mTempProfile.packwizUrl == null ? "" : mTempProfile.packwizUrl);
+        mRamAllocation.setText(mTempProfile.ramAllocation > 0 ? Integer.toString(mTempProfile.ramAllocation) : "");
     }
 
     private MinecraftProfile getProfile(@NonNull String profile){
@@ -233,6 +234,7 @@ public class ProfileEditorFragment extends Fragment implements CropperUtils.Crop
         mDefaultName = view.findViewById(R.id.vprof_editor_profile_name);
         mDefaultJvmArgument = view.findViewById(R.id.vprof_editor_jre_args);
         mPackwizUrl = view.findViewById(R.id.vprof_editor_packwiz_url);
+        mRamAllocation = view.findViewById(R.id.vprof_editor_ram);
 
         mSaveButton = view.findViewById(R.id.vprof_editor_save_button);
         mDeleteButton = view.findViewById(R.id.vprof_editor_delete_button);
@@ -257,6 +259,11 @@ public class ProfileEditorFragment extends Fragment implements CropperUtils.Crop
         if(mTempProfile.gameDir.isEmpty()) mTempProfile.gameDir = null;
         mTempProfile.packwizUrl = mPackwizUrl.getText().toString().trim();
         if(mTempProfile.packwizUrl.isEmpty()) mTempProfile.packwizUrl = null;
+        try {
+            mTempProfile.ramAllocation = Math.max(0, Integer.parseInt(mRamAllocation.getText().toString().trim()));
+        } catch (NumberFormatException e) {
+            mTempProfile.ramAllocation = 0;  // empty: the global setting
+        }
 
         Runtime selectedRuntime = (Runtime) mDefaultRuntime.getSelectedItem();
         mTempProfile.javaDir = (selectedRuntime.name.equals("<Default>") || selectedRuntime.versionString == null)
