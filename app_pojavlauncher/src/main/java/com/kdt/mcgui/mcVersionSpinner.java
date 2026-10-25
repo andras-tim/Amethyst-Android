@@ -25,6 +25,7 @@ import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.extra.ExtraConstants;
 import net.kdt.pojavlaunch.extra.ExtraCore;
+import net.kdt.pojavlaunch.extra.ExtraListener;
 import net.kdt.pojavlaunch.fragments.ProfileEditorFragment;
 import net.kdt.pojavlaunch.fragments.ProfileTypeSelectFragment;
 import net.kdt.pojavlaunch.prefs.LauncherPreferences;
@@ -87,6 +88,29 @@ public class mcVersionSpinner extends ExtendedTextView {
         }else{
             Tools.swapFragment(fragmentActivity, ProfileEditorFragment.class, ProfileEditorFragment.TAG, null);
         }
+    }
+
+    // A profile changed while the list is shown (e.g. by a link): reload it and select that profile now
+    private final ExtraListener<String> mRefreshListener = (key, value) -> {
+        post(() -> {
+            if (ExtraCore.consumeValue(ExtraConstants.REFRESH_VERSION_SPINNER) == null) return;  // init() took it
+            reloadProfiles();
+            int index = value.equals(DELETED_PROFILE) ? 0 : mProfileAdapter.resolveProfileIndex(value);
+            setProfileSelection(Math.max(0, index));
+        });
+        return false;
+    };
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        ExtraCore.addExtraListener(ExtraConstants.REFRESH_VERSION_SPINNER, mRefreshListener);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        ExtraCore.removeExtraListenerFromValue(ExtraConstants.REFRESH_VERSION_SPINNER, mRefreshListener);
+        super.onDetachedFromWindow();
     }
 
     /** Reload profiles from the file, forcing the spinner to consider the new data */
