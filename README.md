@@ -22,10 +22,13 @@ Amethyst team. Everything below the line is the upstream README.
   failed sync names the file and URL, offers its log for sharing, and lets you play the installed version when
   offline. The log of the last sync is `<instance>/.packwiz/last-sync.log`.
 - **Links.** A link (or the QR code of one) opens in the launcher and always asks before changing anything:
-  - `amethyst://profile/import?url=<pack.toml URL>[&name=<profile name>][&icon=<png URL>]` adds a profile for the
-    pack and selects it (an existing profile of the same pack is selected instead);
+  - `amethyst://profile/import?url=<pack.toml URL>[&name=<profile name>][&icon=<png URL>][&ram=<MB>]` adds a profile
+    for the pack and selects it (an existing profile of the same pack is selected instead); `ram` is the profile's own
+    Java heap;
   - `amethyst://profile/update?url=<new pack.toml URL>[&from=<old URL>][&name=<profile name>]` points a pack profile
     at another URL, keeping its worlds and settings.
+  - the debug build uses `amethyst-debug://`, so it never competes with a release build for a link.
+- **Memory per profile.** "Memory (MB)" in the profile editor overrides the global setting for that profile.
 - **No Java 8.** Minecraft 1.20.1 and the Forge installer run on the bundled Java 17.
 
 ## Versions
