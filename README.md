@@ -12,7 +12,7 @@ Amethyst team. Everything below the line is the upstream README.
 - It installs next to an official Amethyst: own application ID `hu.dras.amethyst`, name "Amethyst::Dras".
 - Update by installing a newer release over it; the data stays (every release is signed with the same key,
   certificate SHA-256 `29:6E:B0:B2:F9:FD:3E:EA:8D:26:07:F0:C0:B9:5D:A8:21:0E:75:40:E5:00:08:86:1C:3D:3A:A4:DE:46:D7:64`).
-- Java 17 is inside the APK for arm64 phones; other devices download it on first use, as upstream does.
+- Java 17 and Java 8 are inside the APK for arm64 phones; other devices download them on first use, as upstream does.
 
 ## What the fork adds
 
@@ -29,7 +29,13 @@ Amethyst team. Everything below the line is the upstream README.
     at another URL, keeping its worlds and settings.
   - the debug build uses `amethyst-debug://`, so it never competes with a release build for a link.
 - **Memory per profile.** "Memory (MB)" in the profile editor overrides the global setting for that profile.
-- **No Java 8.** Minecraft 1.20.1 and the Forge installer run on the bundled Java 17.
+- **Adding a pack by hand.** "Create packwiz pack profile (URL)" in the new profile list asks for the `pack.toml` URL
+  and then works like the import link.
+- **Java 17 and Java 8 bundled.** Minecraft 1.20.1 runs on Java 17. The Forge installer must run on Java 8: on Java 17
+  its jarsplitter step writes different bytes on some phones and stops with "Processor failed, invalid outputs" (seen
+  on a OnePlus 7T Pro, not on a Galaxy S25 Ultra; [PojavLauncher#3772](https://github.com/PojavLauncherTeam/PojavLauncher/issues/3772)).
+  Before installing Forge the launcher waits until the bundled Java 8 is unpacked, and the installer picks it as the
+  nearest runtime.
 
 ## Versions
 

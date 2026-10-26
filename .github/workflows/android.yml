@@ -10,10 +10,14 @@ on:
   workflow_dispatch:
 
 env:
-  # Bundled instead of downloaded on the phone (see AsyncAssetManager.unpackBundledRuntimes); Java 17 runs Minecraft
-  # 1.20.1 and also the Forge installer, so no Java 8 is shipped. arm64 only: other devices download it as before.
+  # Bundled instead of downloaded on the phone (see AsyncAssetManager.unpackBundledRuntimes); arm64 only, other
+  # devices download them as before. Java 17 runs Minecraft 1.20.1. Java 8 runs only the Forge installer: on Java 17
+  # its jarsplitter writes different bytes on some phones and fails with "Processor failed, invalid outputs"
+  # (https://github.com/PojavLauncherTeam/PojavLauncher/issues/3772).
   JRE17_URL: https://github.com/AngelAuraMC/angelauramc-openjdk-build/releases/download/download_jre17/jre17-android-arm64.tar.xz
   JRE17_SHA256: e162c860fe05ee4a4e4af7606437419879f6c748386a7b09fa77d10db6a64091
+  JRE8_URL: https://github.com/AngelAuraMC/angelauramc-openjdk-build/releases/download/download_jre8/jre8-android-arm64.tar.xz
+  JRE8_SHA256: 9a59124d9791957d55c68be664ab76831f336cf2e1e1cd4414220c6fdbf0e06d
 
 jobs:
   build:
@@ -40,13 +44,17 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Bundle Java 17
+      - name: Bundle Java 17 and Java 8
         run: |
           dir=app_pojavlauncher/src/main/assets/components/bundled-jre
           mkdir -p "$dir"
-          curl -fsSL -o "$dir/jre17-android-arm64.tar.xz" "$JRE17_URL"
-          echo "$JRE17_SHA256  $dir/jre17-android-arm64.tar.xz" | sha256sum -c
-          echo "$JRE17_SHA256" > "$dir/jre17-android-arm64.tar.xz.sha256"
+          bundle() {
+            curl -fsSL -o "$dir/$1" "$2"
+            echo "$3  $dir/$1" | sha256sum -c
+            echo "$3" > "$dir/$1.sha256"
+          }
+          bundle jre17-android-arm64.tar.xz "$JRE17_URL" "$JRE17_SHA256"
+          bundle jre8-android-arm64.tar.xz "$JRE8_URL" "$JRE8_SHA256"
 
       - name: Run scripts
         run: |
