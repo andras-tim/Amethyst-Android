@@ -7,7 +7,7 @@ Amethyst team. Everything below the line is the upstream README.
 
 ## Download
 
-**[Latest release](https://github.com/andras-tim/Amethyst-Android/releases/latest)** → `amethyst-dras.apk`.
+**[Latest release](https://github.com/andras-tim/Amethyst-Android/releases/latest)** → `amethyst-dras-<version>.apk`.
 
 - It installs next to an official Amethyst: own application ID `hu.dras.amethyst`, name "Amethyst::Dras".
 - Update by installing a newer release over it; the data stays (every release is signed with the same key,

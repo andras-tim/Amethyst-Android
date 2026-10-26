@@ -52,6 +52,8 @@ jobs:
         run: |
           ./scripts/languagelist_updater.sh
           mkdir out
+          # the APK names carry the version, e.g. amethyst-dras-1.1.7-dras.2.apk on a release tag
+          echo "VERSION=$(git describe --tags)" >> "$GITHUB_ENV"
 
       - name: Test the packwiz library
         run: ./gradlew :packwiz:test
@@ -59,7 +61,7 @@ jobs:
       - name: Build debug APK
         run: |
           ./gradlew :app_pojavlauncher:assembleDebug
-          mv app_pojavlauncher/build/outputs/apk/debug/app_pojavlauncher-debug.apk out/amethyst-dras-debug.apk
+          mv app_pojavlauncher/build/outputs/apk/debug/app_pojavlauncher-debug.apk "out/amethyst-dras-debug-$VERSION.apk"
 
       - name: Build release APK
         if: env.APP_KEYSTORE_B64 != ''
@@ -67,7 +69,7 @@ jobs:
           echo "$APP_KEYSTORE_B64" | base64 -d > app_pojavlauncher/aamc_upload.jks
           ./gradlew :app_pojavlauncher:assembleRelease
           rm app_pojavlauncher/aamc_upload.jks
-          mv app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release.apk out/amethyst-dras.apk
+          mv app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release.apk "out/amethyst-dras-$VERSION.apk"
 
       - name: Checksums
         run: cd out && sha256sum *.apk > SHA256SUMS
@@ -83,7 +85,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          test -f out/amethyst-dras.apk || { echo "A release needs the signing secrets"; exit 1; }
+          apk="amethyst-dras-$GITHUB_REF_NAME.apk"
+          test -f "out/$apk" || { echo "A release needs the signing secrets"; exit 1; }
+          # the release carries the signed APK only, so its checksum file lists only that
+          mkdir release && cp "out/$apk" release/ && (cd release && sha256sum "$apk" > SHA256SUMS)
           # actions/checkout leaves the tag lightweight; the changelog is the annotated tag's message
           git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
-          gh release create "$GITHUB_REF_NAME" out/amethyst-dras.apk out/SHA256SUMS --title "$GITHUB_REF_NAME" --notes-from-tag
+          gh release create "$GITHUB_REF_NAME" "release/$apk" release/SHA256SUMS --title "$GITHUB_REF_NAME" --notes-from-tag
