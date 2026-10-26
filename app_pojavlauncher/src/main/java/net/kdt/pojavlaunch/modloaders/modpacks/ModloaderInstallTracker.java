@@ -6,7 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import androidx.core.app.NotificationManagerCompat;
+
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModLoader;
+import net.kdt.pojavlaunch.utils.NotificationUtils;
 
 import java.io.File;
 
@@ -65,6 +68,8 @@ public class ModloaderInstallTracker implements SharedPreferences.OnSharedPrefer
 
     private void startModInstallation(ModLoader modLoader, File modInstallFile) {
         Intent installIntent = modLoader.getInstallationIntent(mActivity, modInstallFile);
+        // The "finish modpack installation" notification is done once the installer starts; it would stay otherwise
+        NotificationManagerCompat.from(mActivity).cancel(NotificationUtils.NOTIFICATION_ID_DOWNLOAD_LISTENER);
         mActivity.startActivity(installIntent);
     }
 
