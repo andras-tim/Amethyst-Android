@@ -19,6 +19,7 @@ import net.kdt.pojavlaunch.packwiz.PackwizException;
 import net.kdt.pojavlaunch.packwiz.PackwizSync;
 import net.kdt.pojavlaunch.packwiz.SyncListener;
 import net.kdt.pojavlaunch.packwiz.SyncResult;
+import net.kdt.pojavlaunch.tasks.AsyncAssetManager;
 import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
@@ -32,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class PackwizLauncher {
     private static final String TAG = "PackwizLauncher";
-    // The internal Java 8 runtime the Forge installer needs is unpacked in the background on the first start
+    // Runtimes are unpacked in the background on the first start, the Forge installer has to wait for its own
     private static final long RUNTIME_WAIT_MS = 15 * 60 * 1000;
     private static final AtomicBoolean RUNNING = new AtomicBoolean(false);
 
@@ -102,7 +103,7 @@ public final class PackwizLauncher {
     private static void installLoader(Activity activity, ModLoader loader, PackToml pack)
             throws InterruptedException, PackwizException {
         if (loader.requiresGuiInstallation()) {
-            waitForRuntime();
+            waitForInstallerRuntime(activity);
             Tools.runOnUiThread(() -> Toast.makeText(activity, activity.getString(R.string.packwiz_installing_loader,
                     pack.loader(), pack.loaderVersion()), Toast.LENGTH_LONG).show());
         }
@@ -111,9 +112,15 @@ public final class PackwizLauncher {
         download.run();
     }
 
-    private static void waitForRuntime() throws InterruptedException, PackwizException {
+    /**
+     * Forge's installer must run on Java 8: on Java 17 its jarsplitter writes different bytes on some phones and fails
+     * with "Processor failed, invalid outputs" (https://github.com/PojavLauncherTeam/PojavLauncher/issues/3772). The
+     * installer takes the nearest runtime, so with a bundled Java 8 wait until exactly that one is unpacked.
+     */
+    private static void waitForInstallerRuntime(Activity activity) throws InterruptedException, PackwizException {
+        boolean java8Bundled = AsyncAssetManager.hasBundledRuntime(activity.getAssets(), 8);
         long deadline = System.currentTimeMillis() + RUNTIME_WAIT_MS;
-        while (MultiRTUtils.getNearestJreName(8) == null) {
+        while ((java8Bundled ? MultiRTUtils.getExactJreName(8) : MultiRTUtils.getNearestJreName(8)) == null) {
             if (System.currentTimeMillis() > deadline) throw new PackwizException("The Java runtime did not get unpacked");
             Thread.sleep(1000);
         }
