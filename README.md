@@ -1,3 +1,51 @@
+<h1 align="center">Amethyst::Dras</h1>
+
+A fork of [Angel Aura Amethyst](https://github.com/AngelAuraMC/Amethyst-Android) that keeps a profile in sync with a
+[packwiz](https://packwiz.infra.link/) modpack and adds profiles from `amethyst://` links. Built for the mc.dras.hu
+family Minecraft server and its [modpack](https://github.com/andras-tim/mc-dras-modpack); not affiliated with the
+Amethyst team. Everything below the line is the upstream README.
+
+## Download
+
+**[Latest release](https://github.com/andras-tim/Amethyst-Android/releases/latest)** → `amethyst-dras-<version>.apk`.
+
+- It installs next to an official Amethyst: own application ID `hu.dras.amethyst`, name "Amethyst::Dras".
+- Update by installing a newer release over it; the data stays (every release is signed with the same key,
+  certificate SHA-256 `29:6E:B0:B2:F9:FD:3E:EA:8D:26:07:F0:C0:B9:5D:A8:21:0E:75:40:E5:00:08:86:1C:3D:3A:A4:DE:46:D7:64`).
+- Java 17 and Java 8 are inside the APK for arm64 phones; other devices download them on first use, as upstream does.
+
+## What the fork adds
+
+- **packwiz pack per profile.** A profile with a pack URL (profile editor: "Packwiz pack URL") syncs before every
+  Play: only changed files are downloaded and checked by their hash, files the pack dropped are removed unless the
+  player changed them, worlds and options stay. The profile follows the pack's Minecraft and mod loader version. A
+  failed sync names the file and URL, offers its log for sharing, and lets you play the installed version when
+  offline. The log of the last sync is `<instance>/.packwiz/last-sync.log`.
+- **Links.** A link (or the QR code of one) opens in the launcher and always asks before changing anything:
+  - `amethyst://profile/import?url=<pack.toml URL>[&name=<profile name>][&icon=<png URL>][&ram=<MB>]` adds a profile
+    for the pack and selects it (an existing profile of the same pack is selected instead); `ram` is the profile's own
+    Java heap;
+  - `amethyst://profile/update?url=<new pack.toml URL>[&from=<old URL>][&name=<profile name>]` points a pack profile
+    at another URL, keeping its worlds and settings.
+  - the debug build uses `amethyst-debug://`, so it never competes with a release build for a link.
+- **Memory per profile.** "Memory (MB)" in the profile editor overrides the global setting for that profile.
+- **Adding a pack by hand.** "Create packwiz pack profile (URL)" in the new profile list asks for the `pack.toml` URL
+  and then works like the import link.
+- **Java 17 and Java 8 bundled.** Minecraft 1.20.1 runs on Java 17. The Forge installer must run on Java 8: on Java 17
+  its jarsplitter step writes different bytes on some phones and stops with "Processor failed, invalid outputs" (seen
+  on a OnePlus 7T Pro, not on a Galaxy S25 Ultra; [PojavLauncher#3772](https://github.com/PojavLauncherTeam/PojavLauncher/issues/3772)).
+  Before installing Forge the launcher waits until the bundled Java 8 is unpacked, and the installer picks it as the
+  nearest runtime.
+
+## Versions
+
+The `dras` branch is an upstream release tag plus this fork's commits: `feat`/`fix` commits are general and could go
+upstream, `fork:` commits (branding, CI) belong here only. A release is tagged `<upstream version>-dras.<n>` (e.g.
+`1.1.7-dras.1`); CI then publishes the signed APK. For a new upstream release the branch is rebased onto its tag
+(`git rebase --onto <new tag> <old tag> dras`), built and tested, and released as `<new version>-dras.1`.
+
+---
+
 <h1 align="center">Angel Aura Amethyst</h1>
 
 <img src="https://github.com/AngelAuraMC/Amethyst-Android/blob/v3_openjdk/app_pojavlauncher/src/main/assets/amethyst.png" align="left" width="130" height="130" alt="Amethyst logo">
