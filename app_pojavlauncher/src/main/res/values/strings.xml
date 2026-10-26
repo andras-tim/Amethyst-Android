@@ -519,6 +519,8 @@
     <string name="import_modpack_copy">Copying modpack file to cache… (%s MB/ %s MB)</string>
 
     <!-- packwiz pack sync -->
+    <string name="packwiz_profile_button">Create packwiz pack profile (URL)</string>
+    <string name="packwiz_profile_url_title">pack.toml URL of the packwiz pack</string>
     <string name="packwiz_url_label">Packwiz pack URL</string>
     <string name="profile_ram_label">Memory (MB)</string>
     <string name="packwiz_url_hint">https://…/pack.toml (optional)</string>
