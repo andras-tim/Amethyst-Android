@@ -39,6 +39,11 @@ public final class LinkRouter {
     }
 
     public static void handle(Activity activity, Uri link) {
+        handle(activity, link, null);
+    }
+
+    /** @param onApplied runs on the UI thread after the player confirmed and the change succeeded; may be null */
+    public static void handle(Activity activity, Uri link, Runnable onApplied) {
         Log.i(TAG, "Link: " + link);
         String name = commandOf(link);
         LinkCommand command = COMMANDS.get(name);
@@ -50,7 +55,7 @@ public final class LinkRouter {
         PojavApplication.sExecutorService.execute(() -> {
             try {
                 LinkAction action = command.prepare(activity, link);
-                Tools.runOnUiThread(() -> confirm(activity, action));
+                Tools.runOnUiThread(() -> confirm(activity, action, onApplied));
             } catch (Exception e) {
                 Log.e(TAG, "Cannot open " + link, e);
                 Tools.runOnUiThread(() -> showFailed(activity, String.valueOf(e.getMessage())));
@@ -73,7 +78,7 @@ public final class LinkRouter {
         return names.toString();
     }
 
-    private static void confirm(Activity activity, LinkAction action) {
+    private static void confirm(Activity activity, LinkAction action, Runnable onApplied) {
         if (activity.isFinishing()) return;
         new AlertDialog.Builder(activity)
                 .setTitle(action.title)
@@ -82,6 +87,7 @@ public final class LinkRouter {
                 .setPositiveButton(action.confirmLabel, (dialog, which) -> {
                     try {
                         Toast.makeText(activity, action.apply(), Toast.LENGTH_LONG).show();
+                        if (onApplied != null) onApplied.run();
                     } catch (Exception e) {
                         Log.e(TAG, "Link action failed", e);
                         showFailed(activity, String.valueOf(e.getMessage()));
