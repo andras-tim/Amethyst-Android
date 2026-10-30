@@ -57,7 +57,7 @@ final class ProfileSettings {
     /** One row for every field that would change; @return whether there is any */
     boolean addChanges(LinkText text, MinecraftProfile profile) {
         boolean changes = false;
-        changes |= addChange(text, R.string.link_key_profile, profile.name, name);
+        changes |= addChange(text, R.string.link_key_name, profile.name, name);
         if (icon != null && !icon.equals(profile.icon)) {
             text.change(R.string.link_key_icon, profile.icon == null ? null : "...", iconUrl);
             changes = true;

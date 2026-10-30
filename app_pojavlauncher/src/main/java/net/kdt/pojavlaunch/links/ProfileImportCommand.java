@@ -33,9 +33,8 @@ final class ProfileImportCommand implements LinkCommand {
             MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
             if (settings.changes(profile)) return ProfileUpdateCommand.action(activity, key, pack, url, settings);
             String existingName = profile.name;
-            return new LinkAction(activity.getString(R.string.link_import_title),
+            return new LinkAction(LinkText.title(activity, R.string.link_select_title, existingName),
                     new LinkText(activity)
-                            .row(R.string.link_key_profile, existingName)
                             .row(R.string.link_key_pack, pack.title())
                             .row(R.string.link_key_minecraft, PackLinks.versions(pack))
                             .sentence(R.string.link_import_existing).build(),
@@ -49,12 +48,11 @@ final class ProfileImportCommand implements LinkCommand {
         }
 
         LinkText text = new LinkText(activity)
-                .row(R.string.link_key_profile, profileName)
                 .row(R.string.link_key_pack, pack.title())
                 .row(R.string.link_key_minecraft, PackLinks.versions(pack))
                 .row(R.string.link_key_url, url);
         settings.addRows(text);
-        return new LinkAction(activity.getString(R.string.link_import_title),
+        return new LinkAction(LinkText.title(activity, R.string.link_import_title, profileName),
                 text.sentence(R.string.link_import_download).build(),
                 activity.getString(R.string.link_import_confirm)) {
             @Override

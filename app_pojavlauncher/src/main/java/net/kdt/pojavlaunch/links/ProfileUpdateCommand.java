@@ -39,7 +39,6 @@ final class ProfileUpdateCommand implements LinkCommand {
         MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
         String profileName = profile.name;
         LinkText text = new LinkText(activity)
-                .row(R.string.link_key_profile, profileName)
                 .row(R.string.link_key_pack, pack.title())
                 .row(R.string.link_key_minecraft, PackLinks.versions(pack));
         boolean changes = settings.addChanges(text, profile);
@@ -49,7 +48,7 @@ final class ProfileUpdateCommand implements LinkCommand {
         }
         text.sentence(changes ? R.string.link_update_worlds : R.string.link_update_nothing);
 
-        return new LinkAction(activity.getString(R.string.link_update_title), text.build(),
+        return new LinkAction(LinkText.title(activity, R.string.link_update_title, profileName), text.build(),
                 activity.getString(R.string.link_update_confirm)) {
             @Override
             String apply() throws Exception {

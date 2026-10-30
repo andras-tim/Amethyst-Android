@@ -38,9 +38,22 @@ final class LinkText {
     LinkText(Context context) {
         mContext = context;
         mColumn = Math.round(LABEL_COLUMN_DP * context.getResources().getDisplayMetrics().density);
+        mNewColor = accentColor(context);
+    }
+
+    /** A title with the profile's name in the accent color. */
+    static CharSequence title(Context context, int title, String name) {
+        String text = context.getString(title, name);
+        SpannableStringBuilder styled = new SpannableStringBuilder(text);
+        int start = text.indexOf(name);
+        styled.setSpan(new ForegroundColorSpan(accentColor(context)), start, start + name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return styled;
+    }
+
+    private static int accentColor(Context context) {
         TypedValue color = new TypedValue();
         context.getTheme().resolveAttribute(android.R.attr.colorAccent, color, true);
-        mNewColor = color.data;
+        return color.data;
     }
 
     LinkText row(int label, String value) {
@@ -53,7 +66,8 @@ final class LinkText {
     /** The start that a URL's old and new value share is left out; both stay whole URLs from there. */
     LinkText change(int label, String oldValue, String newValue) {
         String old = oldValue == null ? MISSING : oldValue;
-        int prefix = sharedPrefix(old, newValue);
+        // one shared folder stays: it tells what the path is about
+        int prefix = Math.max(old.lastIndexOf('/', sharedPrefix(old, newValue) - 2) + 1, 0);
         String shared = prefix > 0 ? ELLIPSIS + "/" : "";
         int start = startRow(label);
         addValue(shared + old.substring(prefix), old, false);
