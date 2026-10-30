@@ -5,7 +5,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import net.kdt.pojavlaunch.PojavApplication;
@@ -81,7 +83,7 @@ public final class LinkRouter {
 
     private static void confirm(Activity activity, LinkAction action, Runnable onApplied) {
         if (activity.isFinishing()) return;
-        new AlertDialog.Builder(activity)
+        AlertDialog confirmation = new AlertDialog.Builder(activity)
                 .setTitle(action.title)
                 .setMessage(action.description)
                 .setNegativeButton(android.R.string.cancel, null)
@@ -95,6 +97,9 @@ public final class LinkRouter {
                     }
                 })
                 .show();
+        // tapping a value copies it
+        TextView message = confirmation.findViewById(android.R.id.message);
+        if (message != null) message.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private static void showFailed(Activity activity, String message) {

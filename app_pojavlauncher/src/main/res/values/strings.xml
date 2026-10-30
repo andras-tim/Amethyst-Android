@@ -548,6 +548,7 @@
     <string name="link_error_java">The link\'s Java runtime is not installed: %1$s</string>
     <string name="link_error_settings_only">This link can only set \"%1$s\": %2$s</string>
     <string name="link_error_resolution">The resolution scale must be %1$d-100 in steps of %2$d: %3$s</string>
+    <string name="link_copied">Copied</string>
     <string name="link_key_profile">Profile</string>
     <string name="link_key_pack">Pack</string>
     <string name="link_key_minecraft">Minecraft</string>

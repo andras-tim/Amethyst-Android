@@ -1,22 +1,33 @@
 package net.kdt.pojavlaunch.links;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TabStopSpan;
 import android.util.TypedValue;
+import android.view.View;
+import android.widget.Toast;
+
+import net.kdt.pojavlaunch.R;
 
 /**
  * The body of a link confirmation: a compact table with a bold label per row, then an optional sentence. Only the new
- * value of a change has the accent color, and the old one stays readable, so a change can be undone by hand.
+ * value of a change has the accent color. A value is copied by tapping it, also a shortened URL in full, so a change
+ * can be undone by hand.
  */
 final class LinkText {
     private static final String ARROW = " \u2192 ";
     private static final String MISSING = "-";
+    private static final String ELLIPSIS = "\u2026";
+    private static final int MAX_VALUE_LENGTH = 40;
     private static final int LABEL_COLUMN_DP = 92;
 
     private final Context mContext;
@@ -34,22 +45,20 @@ final class LinkText {
 
     LinkText row(int label, String value) {
         int start = startRow(label);
-        addValue(value, false);
+        addValue(shorten(value), value, false);
         endRow(start);
         return this;
     }
 
-    /** What a path-like old and new value share is shown once, around the change. */
+    /** The start that a URL's old and new value share is left out; both stay whole URLs from there. */
     LinkText change(int label, String oldValue, String newValue) {
         String old = oldValue == null ? MISSING : oldValue;
         int prefix = sharedPrefix(old, newValue);
-        int suffix = sharedSuffix(old.substring(prefix), newValue.substring(prefix));
+        String shared = prefix > 0 ? ELLIPSIS + "/" : "";
         int start = startRow(label);
-        addValue(old.substring(0, prefix), false);
-        addValue(old.substring(prefix, old.length() - suffix), false);
+        addValue(shared + old.substring(prefix), old, false);
         mText.append(ARROW);
-        addValue(newValue.substring(prefix, newValue.length() - suffix), true);
-        addValue(old.substring(old.length() - suffix), false);
+        addValue(shared + newValue.substring(prefix), newValue, true);
         endRow(start);
         return this;
     }
@@ -72,10 +81,33 @@ final class LinkText {
         return start;
     }
 
-    private void addValue(String value, boolean highlighted) {
+    /** "host/.../last/parts" for a long URL. */
+    private static String shorten(String value) {
+        int scheme = value.indexOf("://");
+        if (scheme < 0 || value.length() <= MAX_VALUE_LENGTH) return value;
+        String path = value.substring(scheme + 3);
+        int host = path.indexOf('/');
+        int end = path.lastIndexOf('/', path.lastIndexOf('/') - 1);
+        return end <= host ? path : path.substring(0, host) + "/" + ELLIPSIS + path.substring(end);
+    }
+
+    private void addValue(String shown, String value, boolean highlighted) {
         int start = mText.length();
         // a zero width space lets a long URL wrap inside its column
-        mText.append(value.replace("/", "/\u200B"));
+        mText.append(shown.replace("/", "/\u200B"));
+        mText.setSpan(new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+                ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+                clipboard.setPrimaryClip(ClipData.newPlainText(value, value));
+                Toast.makeText(mContext, R.string.link_copied, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void updateDrawState(TextPaint paint) {
+                // keeps the row's look: the tap is a shortcut, not a link
+            }
+        }, start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         if (highlighted) {
             mText.setSpan(new ForegroundColorSpan(mNewColor), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             mText.setSpan(new StyleSpan(Typeface.BOLD), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -87,16 +119,6 @@ final class LinkText {
         int length = 0;
         for (int i = 0; i < Math.min(first.length(), second.length()) && first.charAt(i) == second.charAt(i); i++) {
             if (first.charAt(i) == '/') length = i + 1;
-        }
-        return length;
-    }
-
-    /** From the first slash of the shared end. */
-    private static int sharedSuffix(String first, String second) {
-        int length = 0;
-        for (int i = 1; i <= Math.min(first.length(), second.length())
-                && first.charAt(first.length() - i) == second.charAt(second.length() - i); i++) {
-            if (first.charAt(first.length() - i) == '/') length = i;
         }
         return length;
     }
