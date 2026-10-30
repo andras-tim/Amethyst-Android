@@ -8,12 +8,14 @@ import android.view.*;
 
 import java.util.*;
 import net.kdt.pojavlaunch.utils.*;
+import java.util.concurrent.locks.LockSupport;
 
 public class AWTCanvasView extends TextureView implements TextureView.SurfaceTextureListener, Runnable {
     public static final int AWT_CANVAS_WIDTH = 720;
     public static final int AWT_CANVAS_HEIGHT = 600;
     private static final int MAX_SIZE = 100;
     private static final double NANOS = 1000000000.0;
+    private static final long FRAME_NANOS = 1_000_000_000L / 60;
     private boolean mIsDestroyed = false;
     private final TextPaint mFpsPaint;
 
@@ -68,6 +70,7 @@ public class AWTCanvasView extends TextureView implements TextureView.SurfaceTex
         Paint paint = new Paint();
         try {
             while (!mIsDestroyed && surface.isValid()) {
+                long frameStart = System.nanoTime();
                 canvas = surface.lockCanvas(null);
                 canvas.drawRGB(0, 0, 0);
                 int[] rgbArray = JREUtils.renderAWTScreenFrame(/* canvas, mWidth, mHeight */);
@@ -80,6 +83,7 @@ public class AWTCanvasView extends TextureView implements TextureView.SurfaceTex
                 }
                 canvas.drawText("FPS: " + (Math.round(fps() * 10) / 10) + ", drawing=" + mDrawing, 0, 20, mFpsPaint);
                 surface.unlockCanvasAndPost(canvas);
+                LockSupport.parkNanos(FRAME_NANOS - (System.nanoTime() - frameStart));
             }
         } catch (Throwable throwable) {
             Tools.showError(getContext(), throwable);
