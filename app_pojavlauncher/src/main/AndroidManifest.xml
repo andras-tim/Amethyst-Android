@@ -63,6 +63,22 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".MicrosoftLoginRedirectActivity"
+            android:enabled="false"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="ms-xal-00000000402b5328" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".LauncherActivity"
             android:label="@string/app_short_name"
             android:windowSoftInputMode="adjustResize"/>

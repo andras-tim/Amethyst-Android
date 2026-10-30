@@ -530,6 +530,7 @@
     <string name="packwiz_share_log">Share log</string>
     <string name="packwiz_installing_loader">Installing %1$s %2$s. Press Play again when the installer has finished.</string>
     <!-- amethyst:// links -->
+    <string name="microsoft_login_open_browser">Open in the system browser</string>
     <string name="link_opening">Opening the link…</string>
     <string name="link_failed_title">This link cannot be opened</string>
     <string name="link_unknown_command">Unknown link command \"%1$s\". This launcher knows: %2$s</string>

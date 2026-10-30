@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import net.kdt.pojavlaunch.MicrosoftLoginRedirectActivity;
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.extra.ExtraConstants;
@@ -24,6 +25,11 @@ import net.kdt.pojavlaunch.extra.ExtraCore;
 
 public class MicrosoftLoginFragment extends Fragment {
     public static final String TAG = "MICROSOFT_LOGIN_FRAGMENT";
+    public static final String LOGIN_URL = "https://login.live.com/oauth20_authorize.srf" +
+            "?client_id=00000000402b5328" +
+            "&response_type=code" +
+            "&scope=service%3A%3Auser.auth.xboxlive.com%3A%3AMBI_SSL" +
+            "&redirect_url=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf";
     private WebView mWebview;
     // Technically the client is blank (or there is none) when the fragment is initialized
     private boolean mBlankClient = true;
@@ -35,6 +41,12 @@ public class MicrosoftLoginFragment extends Fragment {
         if(savedInstanceState == null) startNewSession();
         else restoreWebViewState(savedInstanceState);
         return mWebview;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (MicrosoftLoginRedirectActivity.consumeReturned()) Tools.backToMainMenu(requireActivity());
     }
 
     // WebView.restoreState() does not restore the WebSettings or the client, so set them there
@@ -54,11 +66,7 @@ public class MicrosoftLoginFragment extends Fragment {
             mWebview.clearCache(true);
             mWebview.clearFormData();
             mWebview.clearHistory();
-            mWebview.loadUrl("https://login.live.com/oauth20_authorize.srf" +
-                    "?client_id=00000000402b5328" +
-                    "&response_type=code" +
-                    "&scope=service%3A%3Auser.auth.xboxlive.com%3A%3AMBI_SSL" +
-                    "&redirect_url=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf");
+            mWebview.loadUrl(LOGIN_URL);
         });
     }
 

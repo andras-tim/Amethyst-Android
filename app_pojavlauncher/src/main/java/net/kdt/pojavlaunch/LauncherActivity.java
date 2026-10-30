@@ -132,6 +132,7 @@ public class LauncherActivity extends BaseActivity {
     private mcAccountSpinner mAccountSpinner;
     private FragmentContainerView mFragmentView;
     private ImageButton mSettingsButton;
+    private ImageButton mBrowserLoginButton;
     private ProgressLayout mProgressLayout;
     private ProgressServiceKeeper mProgressServiceKeeper;
     private ModloaderInstallTracker mInstallTracker;
@@ -141,6 +142,7 @@ public class LauncherActivity extends BaseActivity {
     private final FragmentManager.FragmentLifecycleCallbacks mFragmentCallbackListener = new FragmentManager.FragmentLifecycleCallbacks() {
         @Override
         public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
+            mBrowserLoginButton.setVisibility(f instanceof MicrosoftLoginFragment ? View.VISIBLE : View.GONE);
             mSettingsButton.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), f instanceof MainMenuFragment
                     ? R.drawable.ic_menu_settings : R.drawable.ic_menu_home));
         }
@@ -344,6 +346,8 @@ public class LauncherActivity extends BaseActivity {
         ProgressKeeper.addTaskCountListener((mProgressServiceKeeper = new ProgressServiceKeeper(this)));
 
         mSettingsButton.setOnClickListener(mSettingButtonListener);
+        mBrowserLoginButton.setOnClickListener(v ->
+                MicrosoftLoginRedirectActivity.startLogin(this, MicrosoftLoginFragment.LOGIN_URL));
         ProgressKeeper.addTaskCountListener(mProgressLayout);
         ExtraCore.addExtraListener(ExtraConstants.BACK_PREFERENCE, mBackPreferenceListener);
         ExtraCore.addExtraListener(ExtraConstants.SELECT_AUTH_METHOD, mSelectAuthMethod);
@@ -513,6 +517,7 @@ public class LauncherActivity extends BaseActivity {
     private void bindViews(){
         mFragmentView = findViewById(R.id.container_fragment);
         mSettingsButton = findViewById(R.id.setting_button);
+        mBrowserLoginButton = findViewById(R.id.browser_login_button);
         mAccountSpinner = findViewById(R.id.account_spinner);
         mProgressLayout = findViewById(R.id.progress_layout);
     }
