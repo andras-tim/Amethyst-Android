@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -123,7 +124,6 @@ public class MicrosoftBackgroundLogin {
 
     public String acquireAccessToken(boolean isRefresh, String authcode) throws IOException, JSONException {
         URL url = new URL(authTokenUrl);
-        Log.i("MicrosoftLogin", "isRefresh=" + isRefresh + ", authCode= "+authcode);
 
         String formData = convertToFormData(
                 "client_id", "00000000402b5328",
@@ -133,7 +133,6 @@ public class MicrosoftBackgroundLogin {
                 "scope", "service::user.auth.xboxlive.com::MBI_SSL"
         );
 
-        Log.i("MicroAuth", formData);
 
         //да пошла yf[eq1 она ваша джава 11
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
@@ -152,7 +151,6 @@ public class MicrosoftBackgroundLogin {
             JSONObject jo = new JSONObject(Tools.read(conn.getInputStream()));
             msRefreshToken = jo.getString("refresh_token");
             conn.disconnect();
-            Log.i("MicrosoftLogin","Acess Token = " + jo.getString("access_token"));
             return jo.getString("access_token");
             //acquireXBLToken(jo.getString("access_token"));
         }else{
@@ -183,7 +181,6 @@ public class MicrosoftBackgroundLogin {
         if(conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
             JSONObject jo = new JSONObject(Tools.read(conn.getInputStream()));
             conn.disconnect();
-            Log.i("MicrosoftLogin","Xbl Token = "+jo.getString("Token"));
             return jo.getString("Token");
             //acquireXsts(jo.getString("Token"));
         }else{
@@ -219,7 +216,6 @@ public class MicrosoftBackgroundLogin {
             String uhs = jo.getJSONObject("DisplayClaims").getJSONArray("xui").getJSONObject(0).getString("uhs");
             String token = jo.getString("Token");
             conn.disconnect();
-            Log.i("MicrosoftLogin","Xbl Xsts = " + token + "; Uhs = " + uhs);
             return new String[]{uhs, token};
             //acquireMinecraftToken(uhs,jo.getString("Token"));
         }else if(conn.getResponseCode() == 401) {
@@ -255,7 +251,6 @@ public class MicrosoftBackgroundLogin {
             expiresAt = System.currentTimeMillis() + 86400000;
             JSONObject jo = new JSONObject(Tools.read(conn.getInputStream()));
             conn.disconnect();
-            Log.i("MicrosoftLogin","MC token: "+jo.getString("access_token"));
             mcToken = jo.getString("access_token");
             //checkMcProfile(jo.getString("access_token"));
             return jo.getString("access_token");
@@ -411,10 +406,25 @@ public class MicrosoftBackgroundLogin {
     }
 
     private RuntimeException getResponseThrowable(HttpURLConnection conn) throws IOException {
-        Log.i("MicrosoftLogin", "Error code: " + conn.getResponseCode() + ": " + conn.getResponseMessage());
+        String detail = readErrorDetail(conn);
+        Log.i("MicrosoftLogin", "Error code: " + conn.getResponseCode() + ": " + conn.getResponseMessage() + " " + detail);
         if(conn.getResponseCode() == 429) {
             return new PresentedException(R.string.microsoft_login_retry_later);
         }
-        return new RuntimeException(conn.getResponseMessage());
+        return new RuntimeException(detail == null ? conn.getResponseMessage() : conn.getResponseMessage() + ": " + detail);
+    }
+
+    /** The reason in an error response. Only these fields, the raw body stays out of the logs and dialogs. */
+    private static String readErrorDetail(HttpURLConnection conn) {
+        try(InputStream errorStream = conn.getErrorStream()) {
+            if(errorStream == null) return null;
+            JSONObject error = new JSONObject(Tools.read(errorStream));
+            for(String field : new String[]{"error_description", "error", "XErr", "errorMessage"}) {
+                if(error.has(field)) return error.getString(field);
+            }
+        }catch (IOException | JSONException e) {
+            Log.i("MicrosoftLogin", "No readable error detail");
+        }
+        return null;
     }
 }
