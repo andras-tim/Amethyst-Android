@@ -4,12 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.net.Uri;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StyleSpan;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -61,7 +56,7 @@ public final class LinkRouter {
         PojavApplication.sExecutorService.execute(() -> {
             try {
                 LinkAction action = command.prepare(activity, link);
-                Tools.runOnUiThread(() -> confirm(activity, link, command, action, onApplied));
+                Tools.runOnUiThread(() -> confirm(activity, action, onApplied));
             } catch (Exception e) {
                 Log.e(TAG, "Cannot open " + link, e);
                 Tools.runOnUiThread(() -> showFailed(activity, String.valueOf(e.getMessage())));
@@ -84,11 +79,11 @@ public final class LinkRouter {
         return names.toString();
     }
 
-    private static void confirm(Activity activity, Uri link, LinkCommand command, LinkAction action, Runnable onApplied) {
+    private static void confirm(Activity activity, LinkAction action, Runnable onApplied) {
         if (activity.isFinishing()) return;
         new AlertDialog.Builder(activity)
                 .setTitle(action.title)
-                .setMessage(action.listsParameters() ? message(action.description, link, command) : action.description)
+                .setMessage(action.description)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(action.confirmLabel, (dialog, which) -> {
                     try {
@@ -100,23 +95,6 @@ public final class LinkRouter {
                     }
                 })
                 .show();
-    }
-
-    /** The description, then the command's parameters as the link gave them, in small print. */
-    private static CharSequence message(String description, Uri link, LinkCommand command) {
-        SpannableStringBuilder message = new SpannableStringBuilder(description);
-        int start = message.length();
-        for (String name : command.parameters()) {
-            String value = link.getQueryParameter(name);
-            if (value == null) continue;
-            message.append(message.length() == start ? "\n\n" : "\n");
-            int nameStart = message.length();
-            message.append(name);
-            message.setSpan(new StyleSpan(Typeface.BOLD), nameStart, message.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            message.append(": ").append(value);
-        }
-        message.setSpan(new RelativeSizeSpan(0.8f), start, message.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return message;
     }
 
     private static void showFailed(Activity activity, String message) {

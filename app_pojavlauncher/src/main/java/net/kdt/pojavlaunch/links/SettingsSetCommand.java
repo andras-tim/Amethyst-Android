@@ -18,11 +18,6 @@ final class SettingsSetCommand implements LinkCommand {
     private static final String RESOLUTION_RATIO = "resolutionRatio";
 
     @Override
-    public String[] parameters() {
-        return new String[]{RESOLUTION_RATIO};
-    }
-
-    @Override
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
         Set<String> names = link.getQueryParameterNames();
         if (names.size() != 1 || !names.contains(RESOLUTION_RATIO)) {
@@ -31,7 +26,8 @@ final class SettingsSetCommand implements LinkCommand {
         int ratio = resolutionRatio(activity, PackLinks.requiredParameter(activity, link, RESOLUTION_RATIO));
         int current = Math.round(LauncherPreferences.PREF_SCALE_FACTOR * 100);
         return new LinkAction(activity.getString(R.string.link_settings_title),
-                activity.getString(R.string.link_settings_resolution, current, ratio),
+                new LinkText(activity).change(R.string.link_key_resolution, current + " %", ratio + " %")
+                        .sentence(R.string.link_settings_every_profile).build(),
                 activity.getString(R.string.link_settings_confirm)) {
             @Override
             String apply() {

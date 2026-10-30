@@ -21,8 +21,8 @@ Amethyst team. Everything below the line is the upstream README.
   player changed them, worlds and options stay. The profile follows the pack's Minecraft and mod loader version. A
   failed sync names the file and URL, offers its log for sharing, and lets you play the installed version when
   offline. The log of the last sync is `<instance>/.packwiz/last-sync.log`.
-- **Links.** A link (or the QR code of one) opens in the launcher and always asks before changing anything, listing
-  the parameters it uses:
+- **Links.** A link (or the QR code of one) opens in the launcher and always asks before changing anything, in a short
+  table of what it sets:
   - `amethyst://profile/import?url=<pack.toml URL>[&name=<profile name>][&icon=<png URL>][&ram=<MB>][&renderer=<id>]
     [&control=<layout file>][&java=<runtime>]` adds a profile for the pack and selects it. A profile with the same pack
     URL is updated when the link changes it, else selected. The pack decides what the game is: Minecraft, the loader, the
@@ -30,7 +30,7 @@ Amethyst team. Everything below the line is the upstream README.
   - `amethyst://settings/set?resolutionRatio=<percent>` changes a launcher setting, for every profile. No other setting
     can be reached from a link;
   - `amethyst://profile/update?url=<pack.toml URL>[&from=<old URL>][&name=<profile name>]` with the same optional
-    parameters overrides them on a pack profile and keeps its worlds. Only what changes is shown, as `key: old -> new`.
+    parameters overrides them on a pack profile and keeps its worlds. Only what changes is shown, with the old and the new value.
     With `from`, `name` is the new name, without it `name` finds the profile.
   - the debug build uses `amethyst-debug://`, so it never competes with a release build for a link.
 - **Memory per profile.** "Memory (MB)" in the profile editor overrides the global setting for that profile.

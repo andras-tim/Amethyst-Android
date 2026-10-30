@@ -3,7 +3,6 @@ package net.kdt.pojavlaunch.links;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
-import android.text.TextUtils;
 
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.packwiz.PackPaths;
@@ -21,14 +20,9 @@ import java.util.Map;
  * [&amp;icon=&lt;png url&gt;][&amp;ram=&lt;MB&gt;][&amp;renderer=&lt;id&gt;][&amp;control=&lt;layout file&gt;][&amp;java=&lt;runtime&gt;]
  * <p>Overrides what the link gives on an existing pack profile; the game directory and the worlds stay. The profile is
  * the one syncing {@code from}, else the pack profile called {@code name}, else the only pack profile there is. With
- * {@code from}, {@code name} is the new name. The confirmation shows only what changes.
+ * {@code from}, {@code name} is the new name. The confirmation shows only the fields that change.
  */
 final class ProfileUpdateCommand implements LinkCommand {
-    @Override
-    public String[] parameters() {
-        return new String[]{"url", "from", "name", "icon", "ram", "renderer", "control", "java"};
-    }
-
     @Override
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
         String url = PackPaths.checkUrl(PackLinks.requiredParameter(activity, link, "url"), "pack.toml");
@@ -44,19 +38,19 @@ final class ProfileUpdateCommand implements LinkCommand {
     static LinkAction action(Activity activity, String key, PackToml pack, String url, ProfileSettings settings) {
         MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
         String profileName = profile.name;
-        List<String> changes = settings.changes(profile);
-        if (!url.equals(profile.packwizUrl)) changes.add(ProfileSettings.change("url", profile.packwizUrl, url));
-        String description = changes.isEmpty() ? activity.getString(R.string.link_update_nothing) : TextUtils.join("\n", changes);
+        LinkText text = new LinkText(activity)
+                .row(R.string.link_key_profile, profileName)
+                .row(R.string.link_key_pack, pack.title())
+                .row(R.string.link_key_minecraft, PackLinks.versions(pack));
+        boolean changes = settings.addChanges(text, profile);
+        if (!url.equals(profile.packwizUrl)) {
+            text.change(R.string.link_key_url, profile.packwizUrl, url);
+            changes = true;
+        }
+        text.sentence(changes ? R.string.link_update_worlds : R.string.link_update_nothing);
 
-        return new LinkAction(activity.getString(R.string.link_update_title),
-                activity.getString(R.string.link_update_message, profileName, pack.title(), PackLinks.versions(pack),
-                        description),
+        return new LinkAction(activity.getString(R.string.link_update_title), text.build(),
                 activity.getString(R.string.link_update_confirm)) {
-            @Override
-            boolean listsParameters() {
-                return false;
-            }
-
             @Override
             String apply() throws Exception {
                 LauncherProfiles.load();

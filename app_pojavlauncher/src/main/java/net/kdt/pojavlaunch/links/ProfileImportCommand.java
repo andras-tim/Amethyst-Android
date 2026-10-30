@@ -20,11 +20,6 @@ import java.util.List;
  */
 final class ProfileImportCommand implements LinkCommand {
     @Override
-    public String[] parameters() {
-        return new String[]{"url", "name", "icon", "ram", "renderer", "control", "java"};
-    }
-
-    @Override
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
         String url = PackPaths.checkUrl(PackLinks.requiredParameter(activity, link, "url"), "pack.toml");
         PackToml pack = PackLinks.fetchPack(activity, url);
@@ -36,16 +31,15 @@ final class ProfileImportCommand implements LinkCommand {
         if (!existing.isEmpty()) {
             String key = existing.get(0);
             MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
-            if (!settings.changes(profile).isEmpty()) return ProfileUpdateCommand.action(activity, key, pack, url, settings);
+            if (settings.changes(profile)) return ProfileUpdateCommand.action(activity, key, pack, url, settings);
             String existingName = profile.name;
             return new LinkAction(activity.getString(R.string.link_import_title),
-                    activity.getString(R.string.link_import_existing, existingName, pack.title(), PackLinks.versions(pack)),
+                    new LinkText(activity)
+                            .row(R.string.link_key_profile, existingName)
+                            .row(R.string.link_key_pack, pack.title())
+                            .row(R.string.link_key_minecraft, PackLinks.versions(pack))
+                            .sentence(R.string.link_import_existing).build(),
                     activity.getString(R.string.link_select)) {
-                @Override
-                boolean listsParameters() {
-                    return false;
-                }
-
                 @Override
                 String apply() {
                     PackLinks.select(key);
@@ -54,14 +48,14 @@ final class ProfileImportCommand implements LinkCommand {
             };
         }
 
+        LinkText text = new LinkText(activity)
+                .row(R.string.link_key_profile, profileName)
+                .row(R.string.link_key_pack, pack.title())
+                .row(R.string.link_key_minecraft, PackLinks.versions(pack))
+                .row(R.string.link_key_url, url);
+        settings.addRows(text);
         return new LinkAction(activity.getString(R.string.link_import_title),
-                activity.getString(R.string.link_import_message, profileName, pack.title(), PackLinks.versions(pack),
-                        PackLinks.host(url))
-                        + (settings.ram > 0 ? "\n" + activity.getString(R.string.link_import_ram, settings.ram) : "")
-                        + (settings.renderer == null ? "" : "\n" + activity.getString(R.string.link_import_renderer, settings.renderer))
-                        + (settings.control == null ? "" : "\n" + activity.getString(R.string.link_import_control, settings.control))
-                        + (settings.java == null ? "" : "\n" + activity.getString(R.string.link_import_java, settings.java))
-                        + "\n\n" + activity.getString(R.string.link_import_download),
+                text.sentence(R.string.link_import_download).build(),
                 activity.getString(R.string.link_import_confirm)) {
             @Override
             String apply() throws Exception {
