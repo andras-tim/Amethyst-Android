@@ -88,7 +88,7 @@ public final class LinkRouter {
         if (activity.isFinishing()) return;
         new AlertDialog.Builder(activity)
                 .setTitle(action.title)
-                .setMessage(message(action.description, link, command))
+                .setMessage(action.listsParameters() ? message(action.description, link, command) : action.description)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(action.confirmLabel, (dialog, which) -> {
                     try {

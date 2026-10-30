@@ -12,6 +12,11 @@ abstract class LinkAction {
         this.confirmLabel = confirmLabel;
     }
 
+    /** Whether the confirmation lists the link's parameters; a description of the changes replaces that list. */
+    boolean listsParameters() {
+        return true;
+    }
+
     /** Makes the change on the UI thread; returns the message shown afterwards. */
     abstract String apply() throws Exception;
 }

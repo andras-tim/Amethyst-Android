@@ -3,6 +3,7 @@ package net.kdt.pojavlaunch.links;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.packwiz.PackPaths;
@@ -16,15 +17,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * amethyst://profile/update?url=&lt;new pack.toml&gt;[&amp;from=&lt;old pack.toml&gt;][&amp;name=&lt;profile name&gt;]
- * <p>Points an existing pack profile at another pack URL (e.g. a new release tag); its game directory, worlds and
- * settings stay. The profile is the one syncing {@code from}, else the pack profile called {@code name}, else the
- * only pack profile there is.
+ * amethyst://profile/update?url=&lt;pack.toml&gt;[&amp;from=&lt;old pack.toml&gt;][&amp;name=&lt;profile name&gt;]
+ * [&amp;icon=&lt;png url&gt;][&amp;ram=&lt;MB&gt;][&amp;renderer=&lt;id&gt;][&amp;control=&lt;layout file&gt;][&amp;java=&lt;runtime&gt;]
+ * <p>Overrides what the link gives on an existing pack profile; the game directory and the worlds stay. The profile is
+ * the one syncing {@code from}, else the pack profile called {@code name}, else the only pack profile there is. With
+ * {@code from}, {@code name} is the new name. The confirmation shows only what changes.
  */
 final class ProfileUpdateCommand implements LinkCommand {
     @Override
     public String[] parameters() {
-        return new String[]{"url", "from", "name"};
+        return new String[]{"url", "from", "name", "icon", "ram", "renderer", "control", "java"};
     }
 
     @Override
@@ -34,24 +36,37 @@ final class ProfileUpdateCommand implements LinkCommand {
         if (from != null) from = PackPaths.checkUrl(from, "pack.toml");  // stored URLs are in this form
         String name = PackLinks.optionalParameter(link, "name");
         String key = findProfile(activity, from, name);
-        MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
         PackToml pack = PackLinks.fetchPack(activity, url);
-        String oldUrl = profile.packwizUrl;
+        return action(activity, key, pack, url, ProfileSettings.read(activity, link, from != null ? name : null));
+    }
+
+    /** Overrides the settings of the profile {@code key} and points it at {@code url}. */
+    static LinkAction action(Activity activity, String key, PackToml pack, String url, ProfileSettings settings) {
+        MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
         String profileName = profile.name;
+        List<String> changes = settings.changes(profile);
+        if (!url.equals(profile.packwizUrl)) changes.add(ProfileSettings.change("url", profile.packwizUrl, url));
+        String description = changes.isEmpty() ? activity.getString(R.string.link_update_nothing) : TextUtils.join("\n", changes);
 
         return new LinkAction(activity.getString(R.string.link_update_title),
                 activity.getString(R.string.link_update_message, profileName, pack.title(), PackLinks.versions(pack),
-                        oldUrl, url),
+                        description),
                 activity.getString(R.string.link_update_confirm)) {
+            @Override
+            boolean listsParameters() {
+                return false;
+            }
+
             @Override
             String apply() throws Exception {
                 LauncherProfiles.load();
                 MinecraftProfile current = LauncherProfiles.mainProfileJson.profiles.get(key);
                 if (current == null) throw new PackwizException(activity.getString(R.string.link_error_profile_removed, profileName));
                 current.packwizUrl = url;
+                settings.apply(current);
                 LauncherProfiles.write();
                 PackLinks.select(key);
-                return activity.getString(R.string.link_update_done, profileName);
+                return activity.getString(R.string.link_update_done, current.name);
             }
         };
     }

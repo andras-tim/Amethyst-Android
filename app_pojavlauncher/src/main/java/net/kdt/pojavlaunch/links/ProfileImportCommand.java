@@ -15,8 +15,8 @@ import java.util.List;
 
 /**
  * amethyst://profile/import?url=&lt;pack.toml&gt;[&amp;name=&lt;profile name&gt;][&amp;icon=&lt;png url&gt;][&amp;renderer=&lt;id&gt;][&amp;control=&lt;layout file&gt;][&amp;java=&lt;runtime&gt;][&amp;ram=&lt;MB&gt;]
- * <p>Adds a profile synced from the pack and selects it; a profile that already syncs this pack is selected instead
- * of adding a second one. The pack's files are downloaded on the first Play.
+ * <p>Adds a profile synced from the pack and selects it. A profile that already syncs this pack URL is updated instead
+ * when the link changes it, as profile/update does, else it is selected. The pack's files are downloaded on the first Play.
  */
 final class ProfileImportCommand implements LinkCommand {
     @Override
@@ -28,23 +28,24 @@ final class ProfileImportCommand implements LinkCommand {
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
         String url = PackPaths.checkUrl(PackLinks.requiredParameter(activity, link, "url"), "pack.toml");
         PackToml pack = PackLinks.fetchPack(activity, url);
-        String name = PackLinks.optionalParameter(link, "name");
-        String profileName = name != null ? name : pack.name;
-        String iconUrl = PackLinks.optionalParameter(link, "icon");
-        String icon = iconUrl == null ? null : PackLinks.fetchIcon(activity, iconUrl);
+        ProfileSettings settings = ProfileSettings.read(activity, link, PackLinks.optionalParameter(link, "name"));
+        String profileName = settings.name != null ? settings.name : pack.name;
         String versionId = PackLinks.versionId(pack);
-        int ram = PackLinks.ramParameter(activity, link);
-        String renderer = PackLinks.rendererParameter(activity, link);
-        String control = PackLinks.controlParameter(activity, link);
-        String java = PackLinks.javaParameter(activity, link);
 
         List<String> existing = PackLinks.profilesWithPack(url);
         if (!existing.isEmpty()) {
             String key = existing.get(0);
-            String existingName = LauncherProfiles.mainProfileJson.profiles.get(key).name;
+            MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
+            if (!settings.changes(profile).isEmpty()) return ProfileUpdateCommand.action(activity, key, pack, url, settings);
+            String existingName = profile.name;
             return new LinkAction(activity.getString(R.string.link_import_title),
                     activity.getString(R.string.link_import_existing, existingName, pack.title(), PackLinks.versions(pack)),
                     activity.getString(R.string.link_select)) {
+                @Override
+                boolean listsParameters() {
+                    return false;
+                }
+
                 @Override
                 String apply() {
                     PackLinks.select(key);
@@ -56,10 +57,10 @@ final class ProfileImportCommand implements LinkCommand {
         return new LinkAction(activity.getString(R.string.link_import_title),
                 activity.getString(R.string.link_import_message, profileName, pack.title(), PackLinks.versions(pack),
                         PackLinks.host(url))
-                        + (ram > 0 ? "\n" + activity.getString(R.string.link_import_ram, ram) : "")
-                        + (renderer == null ? "" : "\n" + activity.getString(R.string.link_import_renderer, renderer))
-                        + (control == null ? "" : "\n" + activity.getString(R.string.link_import_control, control))
-                        + (java == null ? "" : "\n" + activity.getString(R.string.link_import_java, java))
+                        + (settings.ram > 0 ? "\n" + activity.getString(R.string.link_import_ram, settings.ram) : "")
+                        + (settings.renderer == null ? "" : "\n" + activity.getString(R.string.link_import_renderer, settings.renderer))
+                        + (settings.control == null ? "" : "\n" + activity.getString(R.string.link_import_control, settings.control))
+                        + (settings.java == null ? "" : "\n" + activity.getString(R.string.link_import_java, settings.java))
                         + "\n\n" + activity.getString(R.string.link_import_download),
                 activity.getString(R.string.link_import_confirm)) {
             @Override
@@ -68,11 +69,7 @@ final class ProfileImportCommand implements LinkCommand {
                 profile.name = profileName;
                 profile.packwizUrl = url;
                 profile.lastVersionId = versionId;
-                profile.icon = icon;
-                profile.ramAllocation = ram;
-                profile.pojavRendererName = renderer;
-                profile.controlFile = control;
-                profile.javaDir = java;
+                settings.apply(profile);
                 profile.gameDir = "./custom_instances/" + instanceFolder(profileName, url);
                 LauncherProfiles.load();
                 String key = LauncherProfiles.getFreeProfileKey();

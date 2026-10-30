@@ -565,7 +565,8 @@
     <string name="link_settings_confirm">Apply</string>
     <string name="link_settings_done">Setting changed</string>
     <string name="link_update_title">Update a pack profile</string>
-    <string name="link_update_message">Profile: %1$s\nPack: %2$s\nMinecraft %3$s\n\nOld: %4$s\nNew: %5$s\n\nWorlds and settings stay.</string>
+    <string name="link_update_message">Profile: %1$s\nPack: %2$s\nMinecraft %3$s\n\n%4$s\n\nThe worlds stay.</string>
+    <string name="link_update_nothing">Nothing changes.</string>
     <string name="link_update_confirm">Update</string>
     <string name="link_update_done">Profile updated: %1$s</string>
 </resources>
