@@ -159,10 +159,27 @@ public class mcAccountSpinner extends AppCompatSpinner implements AdapterView.On
         reloadAccounts(true, 0);
         setOnItemSelectedListener(this);
 
+    }
+
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
         ExtraCore.addExtraListener(ExtraConstants.MOJANG_LOGIN_TODO, mMojangLoginListener);
         ExtraCore.addExtraListener(ExtraConstants.MICROSOFT_LOGIN_TODO, mMicrosoftLoginListener);
     }
 
+    /** A rotation recreates the activity: a spinner left listening would redeem the single-use login code again. */
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        ExtraCore.removeExtraListenerFromValue(ExtraConstants.MOJANG_LOGIN_TODO, mMojangLoginListener);
+        ExtraCore.removeExtraListenerFromValue(ExtraConstants.MICROSOFT_LOGIN_TODO, mMicrosoftLoginListener);
+    }
+
+    private void closePopup() {
+        super.onDetachedFromWindow();
+    }
 
     @Override
     public final void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -413,7 +430,7 @@ public class mcAccountSpinner extends AppCompatSpinner implements AdapterView.On
                     .setMessage(R.string.warning_remove_account)
                     .setPositiveButton(android.R.string.cancel, null)
                     .setNeutralButton(R.string.global_delete, (dialog, which) -> {
-                        onDetachedFromWindow();
+                        closePopup();
                         removeAccount(position);
                     })
                     .show();
