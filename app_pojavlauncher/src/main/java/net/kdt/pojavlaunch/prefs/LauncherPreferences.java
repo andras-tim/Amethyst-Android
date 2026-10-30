@@ -171,7 +171,7 @@ public class LauncherPreferences {
     /// This function will try to find a resolution that is good enough for the device
     private static int findBestResolution(Context context, boolean isDevicePowerful) {
         int minSide = getDisplayMinSide(context);
-        int targetSide = isDevicePowerful ? 720 : 540;
+        int targetSide = isDevicePowerful ? 1080 : 720;
         if (minSide <= targetSide) return 100; // No need to scale down
 
         float ratio = (100f * targetSide / minSide);
