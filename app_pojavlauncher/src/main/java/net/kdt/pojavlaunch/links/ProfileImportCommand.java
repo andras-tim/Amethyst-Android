@@ -21,14 +21,14 @@ import java.util.List;
 final class ProfileImportCommand implements LinkCommand {
     @Override
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
-        String url = PackPaths.checkUrl(PackLinks.requiredParameter(link, "url"), "pack.toml");
-        PackToml pack = PackLinks.fetchPack(url);
+        String url = PackPaths.checkUrl(PackLinks.requiredParameter(activity, link, "url"), "pack.toml");
+        PackToml pack = PackLinks.fetchPack(activity, url);
         String name = PackLinks.optionalParameter(link, "name");
         String profileName = name != null ? name : pack.name;
         String iconUrl = PackLinks.optionalParameter(link, "icon");
-        String icon = iconUrl == null ? null : PackLinks.fetchIcon(iconUrl);
+        String icon = iconUrl == null ? null : PackLinks.fetchIcon(activity, iconUrl);
         String versionId = PackLinks.versionId(pack);
-        int ram = PackLinks.ramParameter(link);
+        int ram = PackLinks.ramParameter(activity, link);
         String renderer = PackLinks.rendererParameter(activity, link);
         String control = PackLinks.controlParameter(activity, link);
         String java = PackLinks.javaParameter(activity, link);

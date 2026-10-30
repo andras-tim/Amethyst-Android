@@ -533,6 +533,15 @@
     <string name="link_opening">Opening the link…</string>
     <string name="link_failed_title">This link cannot be opened</string>
     <string name="link_unknown_command">Unknown link command \"%1$s\". This launcher knows: %2$s</string>
+    <string name="link_error_missing_parameter">The link has no \"%1$s\" parameter</string>
+    <string name="link_error_ram">The link\'s memory must be a number of MB, at least 512: %1$s</string>
+    <string name="link_error_icon">The icon is not a PNG image</string>
+    <string name="link_error_too_large">The file is larger than expected</string>
+    <string name="link_error_profile_removed">The profile \"%1$s\" was removed meanwhile</string>
+    <string name="link_error_no_profile_from">No profile syncs %1$s</string>
+    <string name="link_error_no_profile_named">No pack profile is called \"%1$s\"</string>
+    <string name="link_error_no_profile">There is no pack profile to update</string>
+    <string name="link_error_several_profiles">Several pack profiles match; the link has to name one with \"from\" (its pack URL) or \"name\"</string>
     <string name="link_error_renderer">The link\'s renderer is not available on this device: %1$s</string>
     <string name="link_error_control">The link\'s control layout is not in this launcher: %1$s</string>
     <string name="link_error_java">The link\'s Java runtime is not installed: %1$s</string>

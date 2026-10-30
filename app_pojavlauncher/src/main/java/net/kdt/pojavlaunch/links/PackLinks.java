@@ -35,9 +35,9 @@ final class PackLinks {
 
     private PackLinks() {}
 
-    static String requiredParameter(Uri link, String name) throws PackwizException {
+    static String requiredParameter(Context context, Uri link, String name) throws PackwizException {
         String value = link.getQueryParameter(name);
-        if (value == null || value.trim().isEmpty()) throw new PackwizException("The link has no \"" + name + "\" parameter");
+        if (value == null || value.trim().isEmpty()) throw new PackwizException(context.getString(R.string.link_error_missing_parameter, name));
         return value.trim();
     }
 
@@ -47,7 +47,7 @@ final class PackLinks {
     }
 
     /** The "ram" parameter in MB; 0 when missing (the profile then uses the global setting). */
-    static int ramParameter(Uri link) throws PackwizException {
+    static int ramParameter(Context context, Uri link) throws PackwizException {
         String value = optionalParameter(link, "ram");
         if (value == null) return 0;
         try {
@@ -56,7 +56,7 @@ final class PackLinks {
         } catch (NumberFormatException ignored) {
             // reported below
         }
-        throw new PackwizException("The link's \"ram\" parameter must be a number of MB (at least 512): " + value);
+        throw new PackwizException(context.getString(R.string.link_error_ram, value));
     }
 
     /** The "renderer" parameter, one of the launcher's renderer ids for this device; null when missing. */
@@ -89,9 +89,9 @@ final class PackLinks {
     }
 
     /** Downloads and checks pack.toml, so the confirmation can show what the link adds. */
-    static PackToml fetchPack(String url) throws IOException {
+    static PackToml fetchPack(Context context, String url) throws IOException {
         String checked = PackPaths.checkUrl(url, "pack.toml");
-        PackToml pack = PackToml.parse(new String(download(checked, MAX_PACK_BYTES), StandardCharsets.UTF_8), checked);
+        PackToml pack = PackToml.parse(new String(download(context, checked, MAX_PACK_BYTES), StandardCharsets.UTF_8), checked);
         PackwizLauncher.loaderOf(pack);  // fails now for a loader the launcher cannot install
         return pack;
     }
@@ -108,11 +108,11 @@ final class PackLinks {
     }
 
     /** A profile icon from a PNG link, as the data URI profiles store. */
-    static String fetchIcon(String url) throws IOException {
+    static String fetchIcon(Context context, String url) throws IOException {
         String checked = PackPaths.checkUrl(url, "icon");
-        byte[] png = download(checked, MAX_ICON_BYTES);
+        byte[] png = download(context, checked, MAX_ICON_BYTES);
         for (int i = 0; i < PNG_SIGNATURE.length; i++) {
-            if (png.length <= i || png[i] != PNG_SIGNATURE[i]) throw new PackwizException("The icon is not a PNG image", null, url);
+            if (png.length <= i || png[i] != PNG_SIGNATURE[i]) throw new PackwizException(context.getString(R.string.link_error_icon), null, url);
         }
         return "data:image/png;base64," + Base64.encodeToString(png, Base64.NO_WRAP);
     }
@@ -137,14 +137,14 @@ final class PackLinks {
         return host == null ? url : host;
     }
 
-    private static byte[] download(String url, int maxBytes) throws IOException {
+    private static byte[] download(Context context, String url, int maxBytes) throws IOException {
         try (Fetcher.Download download = PackwizLauncher.newFetcher().open(url)) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buffer = new byte[16 * 1024];
             int read;
             while ((read = download.body.read(buffer)) != -1) {
                 out.write(buffer, 0, read);
-                if (out.size() > maxBytes) throw new PackwizException("The file is larger than expected", null, url);
+                if (out.size() > maxBytes) throw new PackwizException(context.getString(R.string.link_error_too_large), null, url);
             }
             return out.toByteArray();
         }

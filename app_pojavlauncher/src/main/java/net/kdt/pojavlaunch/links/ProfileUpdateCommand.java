@@ -1,6 +1,7 @@
 package net.kdt.pojavlaunch.links;
 
 import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 
 import net.kdt.pojavlaunch.R;
@@ -23,13 +24,13 @@ import java.util.Map;
 final class ProfileUpdateCommand implements LinkCommand {
     @Override
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
-        String url = PackPaths.checkUrl(PackLinks.requiredParameter(link, "url"), "pack.toml");
+        String url = PackPaths.checkUrl(PackLinks.requiredParameter(activity, link, "url"), "pack.toml");
         String from = PackLinks.optionalParameter(link, "from");
         if (from != null) from = PackPaths.checkUrl(from, "pack.toml");  // stored URLs are in this form
         String name = PackLinks.optionalParameter(link, "name");
-        String key = findProfile(from, name);
+        String key = findProfile(activity, from, name);
         MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
-        PackToml pack = PackLinks.fetchPack(url);
+        PackToml pack = PackLinks.fetchPack(activity, url);
         String oldUrl = profile.packwizUrl;
         String profileName = profile.name;
 
@@ -41,7 +42,7 @@ final class ProfileUpdateCommand implements LinkCommand {
             String apply() throws Exception {
                 LauncherProfiles.load();
                 MinecraftProfile current = LauncherProfiles.mainProfileJson.profiles.get(key);
-                if (current == null) throw new PackwizException("The profile \"" + profileName + "\" was removed meanwhile");
+                if (current == null) throw new PackwizException(activity.getString(R.string.link_error_profile_removed, profileName));
                 current.packwizUrl = url;
                 LauncherProfiles.write();
                 PackLinks.select(key);
@@ -50,7 +51,7 @@ final class ProfileUpdateCommand implements LinkCommand {
         };
     }
 
-    private static String findProfile(String from, String name) throws PackwizException {
+    private static String findProfile(Context context, String from, String name) throws PackwizException {
         LauncherProfiles.load();
         List<String> packProfiles = new ArrayList<>();
         for (Map.Entry<String, MinecraftProfile> entry : LauncherProfiles.mainProfileJson.profiles.entrySet()) {
@@ -62,10 +63,10 @@ final class ProfileUpdateCommand implements LinkCommand {
         }
         if (packProfiles.size() == 1) return packProfiles.get(0);
         if (packProfiles.isEmpty()) {
-            throw new PackwizException(from != null ? "No profile syncs " + from
-                    : name != null ? "No pack profile is called \"" + name + "\"" : "There is no pack profile to update");
+            throw new PackwizException(from != null ? context.getString(R.string.link_error_no_profile_from, from)
+                    : name != null ? context.getString(R.string.link_error_no_profile_named, name)
+                    : context.getString(R.string.link_error_no_profile));
         }
-        throw new PackwizException("Several pack profiles match; the link has to name one with \"from\" (its pack URL)"
-                + " or \"name\"");
+        throw new PackwizException(context.getString(R.string.link_error_several_profiles));
     }
 }

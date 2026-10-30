@@ -23,7 +23,7 @@ final class SettingsSetCommand implements LinkCommand {
         if (names.size() != 1 || !names.contains(RESOLUTION_RATIO)) {
             throw new PackwizException(activity.getString(R.string.link_error_settings_only, RESOLUTION_RATIO, names.toString()));
         }
-        int ratio = resolutionRatio(activity, PackLinks.requiredParameter(link, RESOLUTION_RATIO));
+        int ratio = resolutionRatio(activity, PackLinks.requiredParameter(activity, link, RESOLUTION_RATIO));
         int current = Math.round(LauncherPreferences.PREF_SCALE_FACTOR * 100);
         return new LinkAction(activity.getString(R.string.link_settings_title),
                 activity.getString(R.string.link_settings_resolution, current, ratio),
