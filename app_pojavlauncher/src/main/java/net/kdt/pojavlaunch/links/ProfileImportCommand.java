@@ -20,6 +20,11 @@ import java.util.List;
  */
 final class ProfileImportCommand implements LinkCommand {
     @Override
+    public String[] parameters() {
+        return new String[]{"url", "name", "icon", "ram", "renderer", "control", "java"};
+    }
+
+    @Override
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
         String url = PackPaths.checkUrl(PackLinks.requiredParameter(activity, link, "url"), "pack.toml");
         PackToml pack = PackLinks.fetchPack(activity, url);

@@ -21,7 +21,8 @@ Amethyst team. Everything below the line is the upstream README.
   player changed them, worlds and options stay. The profile follows the pack's Minecraft and mod loader version. A
   failed sync names the file and URL, offers its log for sharing, and lets you play the installed version when
   offline. The log of the last sync is `<instance>/.packwiz/last-sync.log`.
-- **Links.** A link (or the QR code of one) opens in the launcher and always asks before changing anything:
+- **Links.** A link (or the QR code of one) opens in the launcher and always asks before changing anything, listing
+  the parameters it uses:
   - `amethyst://profile/import?url=<pack.toml URL>[&name=<profile name>][&icon=<png URL>][&ram=<MB>][&renderer=<id>]
     [&control=<layout file>][&java=<runtime>]` adds a profile for the pack and selects it (an existing profile of the
     same pack is selected instead). The pack decides what the game is: Minecraft, the loader, the mods and the configs.

@@ -23,6 +23,11 @@ import java.util.Map;
  */
 final class ProfileUpdateCommand implements LinkCommand {
     @Override
+    public String[] parameters() {
+        return new String[]{"url", "from", "name"};
+    }
+
+    @Override
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
         String url = PackPaths.checkUrl(PackLinks.requiredParameter(activity, link, "url"), "pack.toml");
         String from = PackLinks.optionalParameter(link, "from");

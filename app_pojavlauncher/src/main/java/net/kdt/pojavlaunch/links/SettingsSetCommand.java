@@ -18,6 +18,11 @@ final class SettingsSetCommand implements LinkCommand {
     private static final String RESOLUTION_RATIO = "resolutionRatio";
 
     @Override
+    public String[] parameters() {
+        return new String[]{RESOLUTION_RATIO};
+    }
+
+    @Override
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
         Set<String> names = link.getQueryParameterNames();
         if (names.size() != 1 || !names.contains(RESOLUTION_RATIO)) {
