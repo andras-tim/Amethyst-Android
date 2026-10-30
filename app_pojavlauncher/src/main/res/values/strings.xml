@@ -533,6 +533,11 @@
     <string name="link_opening">Opening the link…</string>
     <string name="link_failed_title">This link cannot be opened</string>
     <string name="link_unknown_command">Unknown link command \"%1$s\". This launcher knows: %2$s</string>
+    <string name="link_error_renderer">The link\'s renderer is not available on this device: %1$s</string>
+    <string name="link_error_control">The link\'s control layout is not in this launcher: %1$s</string>
+    <string name="link_error_java">The link\'s Java runtime is not installed: %1$s</string>
+    <string name="link_error_settings_only">This link can only set \"%1$s\": %2$s</string>
+    <string name="link_error_resolution">The resolution scale must be %1$d-100 in steps of %2$d: %3$s</string>
     <string name="link_import_title">Add a pack profile</string>
     <string name="link_import_message">From the pack:\n%2$s\nMinecraft %3$s\nFrom: %4$s\n\nFor this device:\nProfile: %1$s</string>
     <string name="link_import_download">The pack\'s files are downloaded when you press Play.</string>

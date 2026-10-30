@@ -21,7 +21,7 @@ final class SettingsSetCommand implements LinkCommand {
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
         Set<String> names = link.getQueryParameterNames();
         if (names.size() != 1 || !names.contains(RESOLUTION_RATIO)) {
-            throw new PackwizException("This link can only set \"" + RESOLUTION_RATIO + "\": " + names);
+            throw new PackwizException(activity.getString(R.string.link_error_settings_only, RESOLUTION_RATIO, names.toString()));
         }
         int ratio = resolutionRatio(activity, PackLinks.requiredParameter(link, RESOLUTION_RATIO));
         int current = Math.round(LauncherPreferences.PREF_SCALE_FACTOR * 100);
@@ -47,6 +47,6 @@ final class SettingsSetCommand implements LinkCommand {
         } catch (NumberFormatException ignored) {
             // reported below
         }
-        throw new PackwizException("\"" + RESOLUTION_RATIO + "\" must be " + min + "-100 in steps of " + step + ": " + value);
+        throw new PackwizException(activity.getString(R.string.link_error_resolution, min, step, value));
     }
 }

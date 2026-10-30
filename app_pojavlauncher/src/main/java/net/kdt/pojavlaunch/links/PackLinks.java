@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Base64;
 
+import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.extra.ExtraConstants;
 import net.kdt.pojavlaunch.extra.ExtraCore;
@@ -62,27 +63,27 @@ final class PackLinks {
     static String rendererParameter(Context context, Uri link) throws PackwizException {
         String value = optionalParameter(link, "renderer");
         if (value != null && !Tools.checkRendererCompatible(context, value)) {
-            throw new PackwizException("The link's \"renderer\" is not available on this device: " + value);
+            throw new PackwizException(context.getString(R.string.link_error_renderer, value));
         }
         return value;
     }
 
     /** The "control" parameter, a control layout file that already exists here; null when missing. */
-    static String controlParameter(Uri link) throws PackwizException {
+    static String controlParameter(Context context, Uri link) throws PackwizException {
         String value = optionalParameter(link, "control");
         if (value == null) return null;
         if (value.contains("/") || value.contains("\\") || !new File(Tools.CTRLMAP_PATH, value).isFile()) {
-            throw new PackwizException("The link's \"control\" is not a control layout of this launcher: " + value);
+            throw new PackwizException(context.getString(R.string.link_error_control, value));
         }
         return value;
     }
 
     /** The "java" parameter, the name of an installed runtime, as a profile stores it; null when missing. */
-    static String javaParameter(Uri link) throws PackwizException {
+    static String javaParameter(Context context, Uri link) throws PackwizException {
         String value = optionalParameter(link, "java");
         if (value == null) return null;
         if (value.contains("/") || value.contains("\\") || MultiRTUtils.read(value).versionString == null) {
-            throw new PackwizException("The link's \"java\" is not an installed runtime: " + value);
+            throw new PackwizException(context.getString(R.string.link_error_java, value));
         }
         return Tools.LAUNCHERPROFILES_RTPREFIX + value;
     }

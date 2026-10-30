@@ -30,8 +30,8 @@ final class ProfileImportCommand implements LinkCommand {
         String versionId = PackLinks.versionId(pack);
         int ram = PackLinks.ramParameter(link);
         String renderer = PackLinks.rendererParameter(activity, link);
-        String control = PackLinks.controlParameter(link);
-        String java = PackLinks.javaParameter(link);
+        String control = PackLinks.controlParameter(activity, link);
+        String java = PackLinks.javaParameter(activity, link);
 
         List<String> existing = PackLinks.profilesWithPack(url);
         if (!existing.isEmpty()) {
