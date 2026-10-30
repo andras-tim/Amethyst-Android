@@ -59,6 +59,32 @@ final class PackLinks {
         throw new PackwizException(context.getString(R.string.link_error_ram, value));
     }
 
+    /** The launcher's resolution scale from a link, one of the settings screen's values; 0 when missing. */
+    static int resolutionParameter(Context context, Uri link, String name) throws PackwizException {
+        String value = optionalParameter(link, name);
+        if (value == null) return 0;
+        int min = context.getResources().getInteger(R.integer.resolution_seekbar_min);
+        int step = context.getResources().getInteger(R.integer.resolution_seekbar_increment);
+        try {
+            int ratio = Integer.parseInt(value);
+            if (ratio >= min && ratio <= 100 && ratio % step == 0) return ratio;
+        } catch (NumberFormatException ignored) {
+            // reported below
+        }
+        throw new PackwizException(context.getString(R.string.link_error_resolution, min, step, value));
+    }
+
+    /** The launcher's current resolution scale in percent. */
+    static int currentResolution() {
+        return Math.round(LauncherPreferences.PREF_SCALE_FACTOR * 100);
+    }
+
+    /** Sets the launcher's resolution scale, for every profile. */
+    static void setResolution(int ratio) {
+        LauncherPreferences.DEFAULT_PREF.edit().putInt("resolutionRatio", ratio).apply();
+        LauncherPreferences.PREF_SCALE_FACTOR = ratio / 100f;
+    }
+
     /** The "renderer" parameter, one of the launcher's renderer ids for this device; null when missing. */
     static String rendererParameter(Context context, Uri link) throws PackwizException {
         String value = optionalParameter(link, "renderer");

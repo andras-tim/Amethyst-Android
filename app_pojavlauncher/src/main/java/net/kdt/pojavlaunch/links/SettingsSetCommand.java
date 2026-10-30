@@ -5,7 +5,6 @@ import android.net.Uri;
 
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.packwiz.PackwizException;
-import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 
 import java.util.Set;
 
@@ -23,31 +22,17 @@ final class SettingsSetCommand implements LinkCommand {
         if (names.size() != 1 || !names.contains(RESOLUTION_RATIO)) {
             throw new PackwizException(activity.getString(R.string.link_error_settings_only, RESOLUTION_RATIO, names.toString()));
         }
-        int ratio = resolutionRatio(activity, PackLinks.requiredParameter(activity, link, RESOLUTION_RATIO));
-        int current = Math.round(LauncherPreferences.PREF_SCALE_FACTOR * 100);
+        int ratio = PackLinks.resolutionParameter(activity, link, RESOLUTION_RATIO);
+        if (ratio == 0) PackLinks.requiredParameter(activity, link, RESOLUTION_RATIO);
         return new LinkAction(activity.getString(R.string.link_settings_title),
-                new LinkText(activity).change(R.string.link_key_resolution, current + " %", ratio + " %")
+                new LinkText(activity).change(R.string.link_key_resolution, PackLinks.currentResolution() + " %", ratio + " %")
                         .sentence(R.string.link_settings_every_profile).build(),
                 activity.getString(R.string.link_settings_confirm)) {
             @Override
             String apply() {
-                LauncherPreferences.DEFAULT_PREF.edit().putInt(RESOLUTION_RATIO, ratio).apply();
-                LauncherPreferences.PREF_SCALE_FACTOR = ratio / 100f;
+                PackLinks.setResolution(ratio);
                 return activity.getString(R.string.link_settings_done);
             }
         };
-    }
-
-    /** The values the settings screen's seek bar offers. */
-    private static int resolutionRatio(Activity activity, String value) throws PackwizException {
-        int min = activity.getResources().getInteger(R.integer.resolution_seekbar_min);
-        int step = activity.getResources().getInteger(R.integer.resolution_seekbar_increment);
-        try {
-            int ratio = Integer.parseInt(value);
-            if (ratio >= min && ratio <= 100 && ratio % step == 0) return ratio;
-        } catch (NumberFormatException ignored) {
-            // reported below
-        }
-        throw new PackwizException(activity.getString(R.string.link_error_resolution, min, step, value));
     }
 }

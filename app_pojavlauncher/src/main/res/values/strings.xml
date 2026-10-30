@@ -559,6 +559,7 @@
     <string name="link_key_control">Controls</string>
     <string name="link_key_java">Java</string>
     <string name="link_key_resolution">Resolution</string>
+    <string name="link_resolution_value">%1$d %% for every profile</string>
     <string name="link_settings_every_profile">This applies to every profile.</string>
     <string name="link_import_title">Add %1$s profile:</string>
     <string name="link_select_title">Select %1$s profile:</string>

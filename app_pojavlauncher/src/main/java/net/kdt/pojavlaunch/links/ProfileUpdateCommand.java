@@ -18,6 +18,7 @@ import java.util.Map;
 /**
  * amethyst://profile/update?url=&lt;pack.toml&gt;[&amp;from=&lt;old pack.toml&gt;][&amp;name=&lt;profile name&gt;]
  * [&amp;icon=&lt;png url&gt;][&amp;ram=&lt;MB&gt;][&amp;renderer=&lt;id&gt;][&amp;control=&lt;layout file&gt;][&amp;java=&lt;runtime&gt;]
+ * [&amp;resolutionRatio=&lt;percent&gt;]
  * <p>Overrides what the link gives on an existing pack profile; the game directory and the worlds stay. The profile is
  * the one syncing {@code from}, else the pack profile called {@code name}, else the only pack profile there is. With
  * {@code from}, {@code name} is the new name. The confirmation shows only the fields that change.

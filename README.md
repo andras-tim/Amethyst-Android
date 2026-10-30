@@ -24,7 +24,7 @@ Amethyst team. Everything below the line is the upstream README.
 - **Links.** A link (or the QR code of one) opens in the launcher and always asks before changing anything, in a short
   table of what it sets:
   - `amethyst://profile/import?url=<pack.toml URL>[&name=<profile name>][&icon=<png URL>][&ram=<MB>][&renderer=<id>]
-    [&control=<layout file>][&java=<runtime>]` adds a profile for the pack and selects it. A profile with the same pack
+    [&control=<layout file>][&java=<runtime>][&resolutionRatio=<percent>]` adds a profile for the pack and selects it. A profile with the same pack
     URL is updated when the link changes it, else selected. The pack decides what the game is: Minecraft, the loader, the
     mods and the configs. The parameters only decide how it runs on this device, so none of them can change the versions;
   - `amethyst://settings/set?resolutionRatio=<percent>` changes a launcher setting, for every profile. No other setting

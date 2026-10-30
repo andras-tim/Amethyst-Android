@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * amethyst://profile/import?url=&lt;pack.toml&gt;[&amp;name=&lt;profile name&gt;][&amp;icon=&lt;png url&gt;][&amp;renderer=&lt;id&gt;][&amp;control=&lt;layout file&gt;][&amp;java=&lt;runtime&gt;][&amp;ram=&lt;MB&gt;]
+ * amethyst://profile/import?url=&lt;pack.toml&gt;[&amp;name=&lt;profile name&gt;][&amp;icon=&lt;png url&gt;][&amp;renderer=&lt;id&gt;][&amp;control=&lt;layout file&gt;][&amp;java=&lt;runtime&gt;][&amp;resolutionRatio=&lt;percent&gt;][&amp;ram=&lt;MB&gt;]
  * <p>Adds a profile synced from the pack and selects it. A profile that already syncs this pack URL is updated instead
  * when the link changes it, as profile/update does, else it is selected. The pack's files are downloaded on the first Play.
  */
