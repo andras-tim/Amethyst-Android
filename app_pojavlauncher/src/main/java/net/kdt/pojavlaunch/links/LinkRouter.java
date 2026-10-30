@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +27,7 @@ import java.util.Map;
  */
 public final class LinkRouter {
     private static final String TAG = "LinkRouter";
+    private static final int MESSAGE_TEXT_SP = 14;
     private static final Map<String, LinkCommand> COMMANDS = new LinkedHashMap<>();
 
     static {
@@ -99,7 +101,10 @@ public final class LinkRouter {
                 .show();
         // tapping a value copies it
         TextView message = confirmation.findViewById(android.R.id.message);
-        if (message != null) message.setMovementMethod(LinkMovementMethod.getInstance());
+        if (message != null) {
+            message.setMovementMethod(LinkMovementMethod.getInstance());
+            message.setTextSize(TypedValue.COMPLEX_UNIT_SP, MESSAGE_TEXT_SP);
+        }
     }
 
     private static void showFailed(Activity activity, String message) {

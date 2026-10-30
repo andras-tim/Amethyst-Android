@@ -28,7 +28,7 @@ final class LinkText {
     private static final String MISSING = "-";
     private static final String ELLIPSIS = "\u2026";
     private static final int MAX_VALUE_LENGTH = 40;
-    private static final int LABEL_COLUMN_DP = 92;
+    private static final int LABEL_COLUMN_DP = 84;
 
     private final Context mContext;
     private final SpannableStringBuilder mText = new SpannableStringBuilder();
