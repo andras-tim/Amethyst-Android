@@ -1,12 +1,15 @@
 package net.kdt.pojavlaunch.links;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Base64;
 
+import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.extra.ExtraConstants;
 import net.kdt.pojavlaunch.extra.ExtraCore;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModLoader;
 import net.kdt.pojavlaunch.modloaders.packwiz.PackwizLauncher;
+import net.kdt.pojavlaunch.multirt.MultiRTUtils;
 import net.kdt.pojavlaunch.packwiz.Fetcher;
 import net.kdt.pojavlaunch.packwiz.PackPaths;
 import net.kdt.pojavlaunch.packwiz.PackToml;
@@ -16,6 +19,7 @@ import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -52,6 +56,35 @@ final class PackLinks {
             // reported below
         }
         throw new PackwizException("The link's \"ram\" parameter must be a number of MB (at least 512): " + value);
+    }
+
+    /** The "renderer" parameter, one of the launcher's renderer ids for this device; null when missing. */
+    static String rendererParameter(Context context, Uri link) throws PackwizException {
+        String value = optionalParameter(link, "renderer");
+        if (value != null && !Tools.checkRendererCompatible(context, value)) {
+            throw new PackwizException("The link's \"renderer\" is not available on this device: " + value);
+        }
+        return value;
+    }
+
+    /** The "control" parameter, a control layout file that already exists here; null when missing. */
+    static String controlParameter(Uri link) throws PackwizException {
+        String value = optionalParameter(link, "control");
+        if (value == null) return null;
+        if (value.contains("/") || value.contains("\\") || !new File(Tools.CTRLMAP_PATH, value).isFile()) {
+            throw new PackwizException("The link's \"control\" is not a control layout of this launcher: " + value);
+        }
+        return value;
+    }
+
+    /** The "java" parameter, the name of an installed runtime, as a profile stores it; null when missing. */
+    static String javaParameter(Uri link) throws PackwizException {
+        String value = optionalParameter(link, "java");
+        if (value == null) return null;
+        if (value.contains("/") || value.contains("\\") || MultiRTUtils.read(value).versionString == null) {
+            throw new PackwizException("The link's \"java\" is not an installed runtime: " + value);
+        }
+        return Tools.LAUNCHERPROFILES_RTPREFIX + value;
     }
 
     /** Downloads and checks pack.toml, so the confirmation can show what the link adds. */

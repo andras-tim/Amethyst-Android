@@ -29,6 +29,7 @@ public final class LinkRouter {
     static {
         COMMANDS.put("profile/import", new ProfileImportCommand());
         COMMANDS.put("profile/update", new ProfileUpdateCommand());
+        COMMANDS.put("settings/set", new SettingsSetCommand());
     }
 
     private LinkRouter() {}
