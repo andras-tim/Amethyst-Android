@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 
 import net.kdt.pojavlaunch.*;
 import net.kdt.pojavlaunch.multirt.MultiRTUtils;
@@ -169,9 +170,8 @@ public class LauncherPreferences {
     /// Some devices are shipped with a ridiculously high resolution, which can cause performance issues
     /// This function will try to find a resolution that is good enough for the device
     private static int findBestResolution(Context context, boolean isDevicePowerful) {
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        int minSide = Math.min(metrics.widthPixels, metrics.heightPixels);
-        int targetSide = isDevicePowerful ? 1080 : 720;
+        int minSide = getDisplayMinSide(context);
+        int targetSide = isDevicePowerful ? 720 : 540;
         if (minSide <= targetSide) return 100; // No need to scale down
 
         float ratio = (100f * targetSide / minSide);
@@ -185,11 +185,17 @@ public class LauncherPreferences {
     private static boolean isDevicePowerful(Context context) {
         if (SDK_INT < Build.VERSION_CODES.Q) return false;
         if (Tools.getTotalDeviceMemory(context) <= 4096) return false;
-        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-        if (Math.min(metrics.widthPixels, metrics.heightPixels) < 1080) return false;
+        if (getDisplayMinSide(context) < 1080) return false;
         if (Runtime.getRuntime().availableProcessors() <= 4) return false;
         if (hasAllCoreSameFreq()) return false;
         return true;
+    }
+
+    /** The physical size: the app area shrinks by the navigation bar in landscape, so it depends on the rotation. */
+    private static int getDisplayMinSide(Context context) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRealMetrics(metrics);
+        return Math.min(metrics.widthPixels, metrics.heightPixels);
     }
 
     private static boolean hasAllCoreSameFreq() {
