@@ -96,7 +96,9 @@ jobs:
           apk="amethyst-dras-$GITHUB_REF_NAME.apk"
           test -f "out/$apk" || { echo "A release needs the signing secrets"; exit 1; }
           # the release carries the signed APK only, so its checksum file lists only that
-          mkdir release && cp "out/$apk" release/ && (cd release && sha256sum "$apk" > SHA256SUMS)
+          # the fixed name keeps releases/latest/download/amethyst-dras.apk valid across releases, e.g. in a QR code
+          mkdir release && cp "out/$apk" release/ && cp "out/$apk" release/amethyst-dras.apk
+          (cd release && sha256sum "$apk" amethyst-dras.apk > SHA256SUMS)
           # actions/checkout leaves the tag lightweight; the changelog is the annotated tag's message
           git fetch --force origin "refs/tags/$GITHUB_REF_NAME:refs/tags/$GITHUB_REF_NAME"
-          gh release create "$GITHUB_REF_NAME" "release/$apk" release/SHA256SUMS --title "$GITHUB_REF_NAME" --notes-from-tag
+          gh release create "$GITHUB_REF_NAME" "release/$apk" release/amethyst-dras.apk release/SHA256SUMS --title "$GITHUB_REF_NAME" --notes-from-tag
