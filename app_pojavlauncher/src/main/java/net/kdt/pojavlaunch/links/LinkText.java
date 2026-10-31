@@ -78,7 +78,11 @@ final class LinkText {
     }
 
     LinkText sentence(int text) {
-        mText.append("\n\n").append(mContext.getString(text));
+        return sentence(mContext.getString(text));
+    }
+
+    LinkText sentence(String text) {
+        mText.append("\n\n").append(text);
         return this;
     }
 

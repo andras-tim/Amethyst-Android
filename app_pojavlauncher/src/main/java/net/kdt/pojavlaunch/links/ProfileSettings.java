@@ -17,13 +17,11 @@ final class ProfileSettings {
     final String renderer;
     final String control;
     final String java;
-    /** The launcher setting, so it applies to every profile; 0 leaves it. */
-    final int resolution;
     private final String iconUrl;
     private final Activity mActivity;
 
     private ProfileSettings(Activity activity, String name, String icon, String iconUrl, int ram, String renderer, String control,
-                            String java, int resolution) {
+                            String java) {
         mActivity = activity;
         this.name = name;
         this.icon = icon;
@@ -32,7 +30,6 @@ final class ProfileSettings {
         this.renderer = renderer;
         this.control = control;
         this.java = java;
-        this.resolution = resolution;
     }
 
     /** @param name the new name, null when the link has none or uses it to find the profile */
@@ -40,8 +37,7 @@ final class ProfileSettings {
         String iconUrl = PackLinks.optionalParameter(link, "icon");
         return new ProfileSettings(activity, name, iconUrl == null ? null : PackLinks.fetchIcon(activity, iconUrl), iconUrl,
                 PackLinks.ramParameter(activity, link), PackLinks.rendererParameter(activity, link),
-                PackLinks.controlParameter(activity, link), PackLinks.javaParameter(activity, link),
-                PackLinks.resolutionParameter(activity, link, "resolutionRatio"));
+                PackLinks.controlParameter(activity, link), PackLinks.javaParameter(activity, link));
     }
 
     /** The rows of a new profile. */
@@ -51,15 +47,6 @@ final class ProfileSettings {
         if (renderer != null) text.row(R.string.link_key_renderer, renderer);
         if (control != null) text.row(R.string.link_key_control, control);
         if (java != null) text.row(R.string.link_key_java, java);
-        addResolution(text);
-    }
-
-    private boolean addResolution(LinkText text) {
-        int current = PackLinks.currentResolution();
-        if (resolution == 0 || resolution == current) return false;
-        text.change(R.string.link_key_resolution, current + " %",
-                mActivity.getString(R.string.link_resolution_value, resolution));
-        return true;
     }
 
     /** @return whether applying these settings would change the profile */
@@ -82,7 +69,6 @@ final class ProfileSettings {
         changes |= addChange(text, R.string.link_key_renderer, profile.pojavRendererName, renderer);
         changes |= addChange(text, R.string.link_key_control, profile.controlFile, control);
         changes |= addChange(text, R.string.link_key_java, profile.javaDir, java);
-        changes |= addResolution(text);
         return changes;
     }
 
@@ -93,7 +79,6 @@ final class ProfileSettings {
         if (renderer != null) profile.pojavRendererName = renderer;
         if (control != null) profile.controlFile = control;
         if (java != null) profile.javaDir = java;
-        if (resolution > 0) PackLinks.setResolution(resolution);
     }
 
     private static boolean addChange(LinkText text, int label, String oldValue, String newValue) {

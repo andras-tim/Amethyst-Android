@@ -59,30 +59,24 @@ final class PackLinks {
         throw new PackwizException(context.getString(R.string.link_error_ram, value));
     }
 
-    /** The launcher's resolution scale from a link, one of the settings screen's values; 0 when missing. */
-    static int resolutionParameter(Context context, Uri link, String name) throws PackwizException {
-        String value = optionalParameter(link, name);
-        if (value == null) return 0;
-        int min = context.getResources().getInteger(R.integer.resolution_seekbar_min);
-        int step = context.getResources().getInteger(R.integer.resolution_seekbar_increment);
+    /**
+     * The "suggest.resolutionRatio" parameter: a value the player may want in the launcher's settings. A link never
+     * writes a launcher setting, so this only shows the value, the current one and where to change it.
+     */
+    static void addResolutionHint(Context context, LinkText text, Uri link) {
+        String value = optionalParameter(link, "suggest.resolutionRatio");
+        if (value == null) return;
+        int suggested;
         try {
-            int ratio = Integer.parseInt(value);
-            if (ratio >= min && ratio <= 100 && ratio % step == 0) return ratio;
-        } catch (NumberFormatException ignored) {
-            // reported below
+            suggested = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return;
         }
-        throw new PackwizException(context.getString(R.string.link_error_resolution, min, step, value));
-    }
-
-    /** The launcher's current resolution scale in percent. */
-    static int currentResolution() {
-        return Math.round(LauncherPreferences.PREF_SCALE_FACTOR * 100);
-    }
-
-    /** Sets the launcher's resolution scale, for every profile. */
-    static void setResolution(int ratio) {
-        LauncherPreferences.DEFAULT_PREF.edit().putInt("resolutionRatio", ratio).apply();
-        LauncherPreferences.PREF_SCALE_FACTOR = ratio / 100f;
+        int current = Math.round(LauncherPreferences.PREF_SCALE_FACTOR * 100);
+        if (suggested <= 0 || suggested > 100 || suggested == current) return;
+        text.sentence(context.getString(R.string.link_hint_resolution, suggested, current,
+                context.getString(R.string.preference_video_title),
+                context.getString(R.string.mcl_setting_title_resolution_scaler)));
     }
 
     /** The "renderer" parameter, one of the launcher's renderer ids for this device; null when missing. */

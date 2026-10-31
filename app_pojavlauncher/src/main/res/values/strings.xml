@@ -539,15 +539,10 @@
     <string name="link_error_icon">The icon is not a PNG image</string>
     <string name="link_error_too_large">The file is larger than expected</string>
     <string name="link_error_profile_removed">The profile \"%1$s\" was removed meanwhile</string>
-    <string name="link_error_no_profile_from">No profile syncs %1$s</string>
-    <string name="link_error_no_profile_named">No pack profile is called \"%1$s\"</string>
-    <string name="link_error_no_profile">There is no pack profile to update</string>
-    <string name="link_error_several_profiles">Several pack profiles match; the link has to name one with \"from\" (its pack URL) or \"name\"</string>
     <string name="link_error_renderer">The link\'s renderer is not available on this device: %1$s</string>
     <string name="link_error_control">The link\'s control layout is not in this launcher: %1$s</string>
     <string name="link_error_java">The link\'s Java runtime is not installed: %1$s</string>
-    <string name="link_error_settings_only">This link can only set \"%1$s\": %2$s</string>
-    <string name="link_error_resolution">The resolution scale must be %1$d-100 in steps of %2$d: %3$s</string>
+    <string name="link_hint_resolution">Suggested resolution scale: %1$d %% (now %2$d %%). Change it in the settings, under %3$s: %4$s.</string>
     <string name="link_copied">Copied</string>
     <string name="link_key_name">Name</string>
     <string name="link_key_pack">Pack</string>
@@ -558,9 +553,6 @@
     <string name="link_key_renderer">Renderer</string>
     <string name="link_key_control">Controls</string>
     <string name="link_key_java">Java</string>
-    <string name="link_key_resolution">Resolution</string>
-    <string name="link_resolution_value">%1$d %% for every profile</string>
-    <string name="link_settings_every_profile">This applies to every profile.</string>
     <string name="link_import_title">Add %1$s profile:</string>
     <string name="link_select_title">Select %1$s profile:</string>
     <string name="link_import_download">The pack\'s files are downloaded when you press Play.</string>
@@ -569,12 +561,8 @@
     <string name="link_import_done">Profile added: %1$s</string>
     <string name="link_select">Select</string>
     <string name="link_selected">Profile selected: %1$s</string>
-    <string name="link_settings_title">Change a launcher setting</string>
-    <string name="link_settings_confirm">Apply</string>
-    <string name="link_settings_done">Setting changed</string>
     <string name="link_update_title">Update %1$s profile:</string>
     <string name="link_update_worlds">The worlds stay.</string>
-    <string name="link_update_nothing">Nothing changes.</string>
     <string name="link_update_confirm">Update</string>
     <string name="link_update_done">Profile updated: %1$s</string>
 </resources>
