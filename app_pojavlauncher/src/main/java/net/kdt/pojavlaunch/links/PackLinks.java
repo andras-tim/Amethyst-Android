@@ -59,28 +59,6 @@ final class PackLinks {
         throw new PackwizException(context.getString(R.string.link_error_ram, value));
     }
 
-    /**
-     * The "suggest.resolutionLines" parameter: a line count the player may want. A link never writes a launcher
-     * setting, so this only shows the scale that gives those lines on this display, the current one and where to set it.
-     */
-    static void addResolutionHint(Context context, LinkText text, Uri link) {
-        String value = optionalParameter(link, "suggest.resolutionLines");
-        if (value == null) return;
-        int lines;
-        try {
-            lines = Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return;
-        }
-        if (lines <= 0) return;
-        int suggested = LauncherPreferences.resolutionForLines(context, lines);
-        int current = Math.round(LauncherPreferences.PREF_SCALE_FACTOR * 100);
-        if (suggested == current) return;
-        text.sentence(context.getString(R.string.link_hint_resolution, suggested, lines, current,
-                context.getString(R.string.preference_video_title),
-                context.getString(R.string.mcl_setting_title_resolution_scaler)));
-    }
-
     /** The "renderer" parameter, one of the launcher's renderer ids for this device; null when missing. */
     static String rendererParameter(Context context, Uri link) throws PackwizException {
         String value = optionalParameter(link, "renderer");

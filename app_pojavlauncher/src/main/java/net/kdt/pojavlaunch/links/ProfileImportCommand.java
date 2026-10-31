@@ -32,13 +32,12 @@ final class ProfileImportCommand implements LinkCommand {
         if (!existing.isEmpty()) {
             String key = existing.get(0);
             MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
-            if (settings.changes(profile)) return update(activity, link, key, pack, settings);
+            if (settings.changes(profile)) return update(activity, key, pack, settings);
             String existingName = profile.name;
             LinkText text = new LinkText(activity)
                     .row(R.string.link_key_pack, pack.title())
                     .row(R.string.link_key_minecraft, PackLinks.versions(pack))
                     .sentence(R.string.link_import_existing);
-            PackLinks.addResolutionHint(activity, text, link);
             return new LinkAction(LinkText.title(activity, R.string.link_select_title, existingName), text.build(),
                     activity.getString(R.string.link_select)) {
                 @Override
@@ -55,7 +54,6 @@ final class ProfileImportCommand implements LinkCommand {
                 .row(R.string.link_key_url, url);
         settings.addRows(text);
         text.sentence(R.string.link_import_download);
-        PackLinks.addResolutionHint(activity, text, link);
         return new LinkAction(LinkText.title(activity, R.string.link_import_title, profileName), text.build(),
                 activity.getString(R.string.link_import_confirm)) {
             @Override
@@ -77,7 +75,7 @@ final class ProfileImportCommand implements LinkCommand {
     }
 
     /** Overrides what the link gives on the existing profile {@code key}. */
-    private static LinkAction update(Activity activity, Uri link, String key, PackToml pack, ProfileSettings settings) {
+    private static LinkAction update(Activity activity, String key, PackToml pack, ProfileSettings settings) {
         MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
         String profileName = profile.name;
         LinkText text = new LinkText(activity)
@@ -85,7 +83,6 @@ final class ProfileImportCommand implements LinkCommand {
                 .row(R.string.link_key_minecraft, PackLinks.versions(pack));
         settings.addChanges(text, profile);
         text.sentence(R.string.link_update_worlds);
-        PackLinks.addResolutionHint(activity, text, link);
 
         return new LinkAction(LinkText.title(activity, R.string.link_update_title, profileName), text.build(),
                 activity.getString(R.string.link_update_confirm)) {
