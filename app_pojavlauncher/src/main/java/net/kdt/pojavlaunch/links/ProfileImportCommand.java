@@ -13,6 +13,7 @@ import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * amethyst://profile/import?url=&lt;pack.toml&gt;[&amp;name=&lt;profile name&gt;][&amp;icon=&lt;png url&gt;][&amp;renderer=&lt;id&gt;][&amp;control=&lt;layout file&gt;][&amp;java=&lt;runtime&gt;][&amp;suggest.resolutionLines=&lt;lines&gt;][&amp;ram=&lt;MB&gt;]
@@ -20,6 +21,8 @@ import java.util.List;
  * when the link changes it, showing only the fields that change and keeping the worlds, else it is selected. The pack's files are downloaded on the first Play.
  */
 final class ProfileImportCommand implements LinkCommand {
+    private static final String INSTANCES_DIR = "./custom_instances/";
+
     @Override
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
         String url = PackPaths.checkUrl(PackLinks.requiredParameter(activity, link, "url"), "pack.toml");
@@ -63,8 +66,8 @@ final class ProfileImportCommand implements LinkCommand {
                 profile.packwizUrl = url;
                 profile.lastVersionId = versionId;
                 settings.apply(profile);
-                profile.gameDir = "./custom_instances/" + instanceFolder(profileName, url);
                 LauncherProfiles.load();
+                profile.gameDir = INSTANCES_DIR + instanceFolder(profileName, url);
                 String key = LauncherProfiles.getFreeProfileKey();
                 LauncherProfiles.mainProfileJson.profiles.put(key, profile);
                 LauncherProfiles.write();
@@ -101,8 +104,13 @@ final class ProfileImportCommand implements LinkCommand {
 
     /** Readable and unique per pack URL, so two packs with the same name never share a directory. */
     private static String instanceFolder(String name, String url) throws Exception {
-        String readable = name.replaceAll("[^A-Za-z0-9._-]+", "_");
-        if (readable.isEmpty()) readable = "pack";
-        return readable + "-" + HashFormat.SHA1.hash(url.getBytes(StandardCharsets.UTF_8)).substring(0, 8);
+        String id = name.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+        if (id.isEmpty()) id = "pack";
+        for (MinecraftProfile other : LauncherProfiles.mainProfileJson.profiles.values()) {
+            if ((INSTANCES_DIR + id).equals(other.gameDir)) {
+                return id + "-" + HashFormat.SHA1.hash(url.getBytes(StandardCharsets.UTF_8)).substring(0, 8);
+            }
+        }
+        return id;
     }
 }
