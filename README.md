@@ -27,8 +27,8 @@ Amethyst team. Everything below the line is the upstream README.
     [&control=<layout file>][&java=<runtime>]` adds a profile for the pack and selects it. A profile with the same pack
     URL is updated when the link changes it, else selected. The pack decides what the game is: Minecraft, the loader, the
     mods and the configs. The parameters only decide how it runs on this device, so none of them can change the versions;
-  - no link writes a launcher setting. `suggest.resolutionRatio=<percent>` on these links only shows a suggested value,
-    the current one and where to change it;
+  - no link writes a launcher setting. `suggest.resolutionLines=<lines>` on the link only shows the scale that gives
+    those lines on this display, the current one and where to change it;
   - the debug build uses `amethyst-debug://`, so it never competes with a release build for a link.
 - **Memory per profile.** "Memory (MB)" in the profile editor overrides the global setting for that profile.
 - **Adding a pack by hand.** "Create packwiz pack profile (URL)" in the new profile list asks for the `pack.toml` URL

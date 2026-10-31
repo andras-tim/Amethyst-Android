@@ -542,7 +542,7 @@
     <string name="link_error_renderer">The link\'s renderer is not available on this device: %1$s</string>
     <string name="link_error_control">The link\'s control layout is not in this launcher: %1$s</string>
     <string name="link_error_java">The link\'s Java runtime is not installed: %1$s</string>
-    <string name="link_hint_resolution">Suggested resolution scale: %1$d %% (now %2$d %%). Change it in the settings, under %3$s: %4$s.</string>
+    <string name="link_hint_resolution">Suggested resolution scale: %1$d %% for %2$d lines (now %3$d %%). Change it in the settings, under %4$s: %5$s.</string>
     <string name="link_copied">Copied</string>
     <string name="link_key_name">Name</string>
     <string name="link_key_pack">Pack</string>
