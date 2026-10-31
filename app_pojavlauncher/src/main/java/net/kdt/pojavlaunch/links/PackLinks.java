@@ -1,17 +1,23 @@
 package net.kdt.pojavlaunch.links;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Base64;
 
+import com.google.gson.JsonParseException;
+
+import net.kdt.pojavlaunch.BuildConfig;
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.Tools;
+import net.kdt.pojavlaunch.customcontrols.CustomControls;
 import net.kdt.pojavlaunch.extra.ExtraConstants;
 import net.kdt.pojavlaunch.extra.ExtraCore;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModLoader;
 import net.kdt.pojavlaunch.modloaders.packwiz.PackwizLauncher;
 import net.kdt.pojavlaunch.multirt.MultiRTUtils;
 import net.kdt.pojavlaunch.packwiz.Fetcher;
+import net.kdt.pojavlaunch.packwiz.HashFormat;
 import net.kdt.pojavlaunch.packwiz.PackPaths;
 import net.kdt.pojavlaunch.packwiz.PackToml;
 import net.kdt.pojavlaunch.packwiz.PackwizException;
@@ -20,17 +26,20 @@ import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /** What the pack profile link commands share. */
 final class PackLinks {
     private static final int MAX_PACK_BYTES = 1024 * 1024;
     private static final int MAX_ICON_BYTES = 512 * 1024;
+    private static final int MAX_CONTROL_BYTES = 1024 * 1024;
+    private static final int MAX_ICON_SIDE = 1024;
+    private static final int MAX_NAME_LENGTH = 64;
     private static final byte[] PNG_SIGNATURE = {(byte) 0x89, 'P', 'N', 'G'};
 
     private PackLinks() {}
@@ -44,6 +53,29 @@ final class PackLinks {
     static String optionalParameter(Uri link, String name) {
         String value = link.getQueryParameter(name);
         return value == null || value.trim().isEmpty() ? null : value.trim();
+    }
+
+    /** The "name" parameter; null when missing. It is shown as the title, so it cannot carry layout tricks. */
+    static String nameParameter(Context context, Uri link) throws PackwizException {
+        String value = optionalParameter(link, "name");
+        if (value == null) return null;
+        boolean valid = value.length() <= MAX_NAME_LENGTH;
+        for (int i = 0; valid && i < value.length(); i++) {
+            int type = Character.getType(value.charAt(i));
+            valid = type != Character.CONTROL && type != Character.FORMAT && type != Character.LINE_SEPARATOR
+                    && type != Character.PARAGRAPH_SEPARATOR;
+        }
+        if (!valid) throw new PackwizException(context.getString(R.string.link_error_name));
+        return value;
+    }
+
+    /** A link can come from anywhere and a pack brings code, so a release build takes https only. */
+    static String checkedUrl(Context context, String url, String path) throws PackwizException {
+        String checked = PackPaths.checkUrl(url, path);
+        if (!BuildConfig.DEBUG && !checked.toLowerCase(Locale.ROOT).startsWith("https://")) {
+            throw new PackwizException(context.getString(R.string.link_error_https, url));
+        }
+        return checked;
     }
 
     /** The "ram" parameter in MB; 0 when missing (the profile then uses the global setting). */
@@ -68,14 +100,28 @@ final class PackLinks {
         return value;
     }
 
-    /** The "control" parameter, a control layout file that already exists here; null when missing. */
-    static String controlParameter(Context context, Uri link) throws PackwizException {
+    /** The "control" parameter, the URL of a control layout; null when missing. */
+    static ControlLayout controlParameter(Context context, Uri link) throws IOException {
         String value = optionalParameter(link, "control");
-        if (value == null) return null;
-        if (value.contains("/") || value.contains("\\") || !new File(Tools.CTRLMAP_PATH, value).isFile()) {
-            throw new PackwizException(context.getString(R.string.link_error_control, value));
+        return value == null ? null : fetchControl(context, value);
+    }
+
+    private static ControlLayout fetchControl(Context context, String url) throws IOException {
+        String checked = checkedUrl(context, url, "control");
+        String name = Uri.parse(checked).getLastPathSegment();
+        if (name == null || !name.matches("[A-Za-z0-9._-]{1,64}\\.json")) {
+            throw new PackwizException(context.getString(R.string.link_error_control_layout, url));
         }
-        return value;
+        byte[] layout = download(context, checked, MAX_CONTROL_BYTES);
+        try {
+            CustomControls parsed = Tools.GLOBAL_GSON.fromJson(new String(layout, StandardCharsets.UTF_8), CustomControls.class);
+            if (parsed == null || parsed.mControlDataList == null) throw new JsonParseException("no controls");
+        } catch (JsonParseException e) {
+            throw new PackwizException(context.getString(R.string.link_error_control_layout, url));
+        }
+        // two packs with the same file name must not overwrite each other's layout
+        String source = HashFormat.SHA1.hash(url.getBytes(StandardCharsets.UTF_8)).substring(0, 8);
+        return new ControlLayout(ControlLayout.PREFIX + source + "-" + name, checked, layout);
     }
 
     /** The "java" parameter, the name of an installed runtime, as a profile stores it; null when missing. */
@@ -90,7 +136,7 @@ final class PackLinks {
 
     /** Downloads and checks pack.toml, so the confirmation can show what the link adds. */
     static PackToml fetchPack(Context context, String url) throws IOException {
-        String checked = PackPaths.checkUrl(url, "pack.toml");
+        String checked = checkedUrl(context, url, "pack.toml");
         PackToml pack = PackToml.parse(new String(download(context, checked, MAX_PACK_BYTES), StandardCharsets.UTF_8), checked);
         PackwizLauncher.loaderOf(pack);  // fails now for a loader the launcher cannot install
         return pack;
@@ -109,10 +155,16 @@ final class PackLinks {
 
     /** A profile icon from a PNG link, as the data URI profiles store. */
     static String fetchIcon(Context context, String url) throws IOException {
-        String checked = PackPaths.checkUrl(url, "icon");
-        byte[] png = download(context, checked, MAX_ICON_BYTES);
+        byte[] png = download(context, checkedUrl(context, url, "icon"), MAX_ICON_BYTES);
         for (int i = 0; i < PNG_SIGNATURE.length; i++) {
             if (png.length <= i || png[i] != PNG_SIGNATURE[i]) throw new PackwizException(context.getString(R.string.link_error_icon), null, url);
+        }
+        // a small file can still decode to an image that does not fit into the memory
+        BitmapFactory.Options size = new BitmapFactory.Options();
+        size.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(png, 0, png.length, size);
+        if (size.outWidth <= 0 || size.outWidth > MAX_ICON_SIDE || size.outHeight > MAX_ICON_SIDE) {
+            throw new PackwizException(context.getString(R.string.link_error_icon));
         }
         return "data:image/png;base64," + Base64.encodeToString(png, Base64.NO_WRAP);
     }

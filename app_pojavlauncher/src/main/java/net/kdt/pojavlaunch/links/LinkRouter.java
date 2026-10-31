@@ -4,8 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.widget.TextView;
@@ -27,7 +28,8 @@ import java.util.Map;
  */
 public final class LinkRouter {
     private static final String TAG = "LinkRouter";
-    private static final int MESSAGE_TEXT_SP = 14;
+    private static final int MESSAGE_TEXT_SP = 13;
+    private static final int LINE_GAP_DP = 4;
     private static final Map<String, LinkCommand> COMMANDS = new LinkedHashMap<>();
 
     static {
@@ -83,25 +85,33 @@ public final class LinkRouter {
 
     private static void confirm(Activity activity, LinkAction action, Runnable onApplied) {
         if (activity.isFinishing()) return;
-        AlertDialog confirmation = new AlertDialog.Builder(activity)
+        if (action.description == null) {
+            apply(activity, action, onApplied);
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                 .setTitle(action.title)
                 .setMessage(action.description)
                 .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(action.confirmLabel, (dialog, which) -> {
-                    try {
-                        Toast.makeText(activity, action.apply(), Toast.LENGTH_LONG).show();
-                        if (onApplied != null) onApplied.run();
-                    } catch (Exception e) {
-                        Log.e(TAG, "Link action failed", e);
-                        showFailed(activity, String.valueOf(e.getMessage()));
-                    }
-                })
-                .show();
-        // tapping a value copies it
+                .setPositiveButton(action.confirmLabel, (dialog, which) -> apply(activity, action, onApplied));
+        Bitmap icon = LinkText.iconBitmap(action.icon);
+        if (icon != null) builder.setIcon(new BitmapDrawable(activity.getResources(), icon));
+        AlertDialog confirmation = builder.show();
         TextView message = confirmation.findViewById(android.R.id.message);
         if (message != null) {
-            message.setMovementMethod(LinkMovementMethod.getInstance());
+            LinkText.enableCopy(message);
             message.setTextSize(TypedValue.COMPLEX_UNIT_SP, MESSAGE_TEXT_SP);
+            message.setLineSpacing(LINE_GAP_DP * activity.getResources().getDisplayMetrics().density, 1);
+        }
+    }
+
+    private static void apply(Activity activity, LinkAction action, Runnable onApplied) {
+        try {
+            Toast.makeText(activity, action.apply(), Toast.LENGTH_LONG).show();
+            if (onApplied != null) onApplied.run();
+        } catch (Exception e) {
+            Log.e(TAG, "Link action failed", e);
+            showFailed(activity, String.valueOf(e.getMessage()));
         }
     }
 

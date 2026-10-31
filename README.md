@@ -24,10 +24,13 @@ Amethyst team. Everything below the line is the upstream README.
 - **Links.** A link (or the QR code of one) opens in the launcher and always asks before changing anything, in a short
   table of what it sets:
   - `amethyst://profile/import?url=<pack.toml URL>[&name=<profile name>][&icon=<png URL>][&ram=<MB>][&renderer=<id>]
-    [&control=<layout file>][&java=<runtime>]` adds a profile for the pack and selects it. A profile with the same pack
-    URL is updated when the link changes it, else selected. The pack decides what the game is: Minecraft, the loader, the
+    [&control=<layout URL>][&java=<runtime>]` adds a profile for the pack and selects it. A profile with the same pack
+    URL is updated after confirming what the link changes, else it is selected without a question. The pack decides what the game is: Minecraft, the loader, the
     mods and the configs. The parameters only decide how it runs on this device, so none of them can change the versions;
+  - `control` is the URL of a `.json` control layout: it is checked, saved as `link-<name>` once confirmed, and refreshed
+    by the same link later. The player's own layouts are never overwritten;
   - no link writes a launcher setting;
+  - a release build takes https links only: a pack brings code to the device. The debug build also takes http for tests;
   - the debug build uses `amethyst-debug://`, so it never competes with a release build for a link.
 - **Resolution from the display.** The first start of a fresh install sets the resolution scale to give 540 lines on
   the physical display, in the scaler's 5 % steps: 75 % at 720p, 50 % at 1080p, 40 % at 1440p. It runs once, and an

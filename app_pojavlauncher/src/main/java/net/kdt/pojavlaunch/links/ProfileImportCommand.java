@@ -8,6 +8,7 @@ import net.kdt.pojavlaunch.packwiz.HashFormat;
 import net.kdt.pojavlaunch.packwiz.PackPaths;
 import net.kdt.pojavlaunch.packwiz.PackToml;
 import net.kdt.pojavlaunch.packwiz.PackwizException;
+import net.kdt.pojavlaunch.profiles.ProfileIconCache;
 import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
@@ -25,9 +26,9 @@ final class ProfileImportCommand implements LinkCommand {
 
     @Override
     public LinkAction prepare(Activity activity, Uri link) throws Exception {
-        String url = PackPaths.checkUrl(PackLinks.requiredParameter(activity, link, "url"), "pack.toml");
+        String url = PackLinks.checkedUrl(activity, PackLinks.requiredParameter(activity, link, "url"), "pack.toml");
         PackToml pack = PackLinks.fetchPack(activity, url);
-        ProfileSettings settings = ProfileSettings.read(activity, link, PackLinks.optionalParameter(link, "name"));
+        ProfileSettings settings = ProfileSettings.read(activity, link, PackLinks.nameParameter(activity, link));
         String profileName = settings.name != null ? settings.name : pack.name;
         String versionId = PackLinks.versionId(pack);
 
@@ -35,39 +36,26 @@ final class ProfileImportCommand implements LinkCommand {
         if (!existing.isEmpty()) {
             String key = existing.get(0);
             MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
-            if (settings.changes(profile)) return update(activity, key, pack, settings);
-            String existingName = profile.name;
-            LinkText text = new LinkText(activity)
-                    .row(R.string.link_key_pack, pack.title())
-                    .row(R.string.link_key_minecraft, PackLinks.versions(pack))
-                    .sentence(R.string.link_import_existing);
-            return new LinkAction(LinkText.title(activity, R.string.link_select_title, existingName), text.build(),
-                    activity.getString(R.string.link_select)) {
-                @Override
-                String apply() {
-                    PackLinks.select(key);
-                    return activity.getString(R.string.link_selected, existingName);
-                }
-            };
+            return settings.changes(profile) ? update(activity, key, pack, settings) : select(activity, key);
         }
 
-        LinkText text = new LinkText(activity)
-                .row(R.string.link_key_pack, pack.title())
-                .row(R.string.link_key_minecraft, PackLinks.versions(pack))
-                .row(R.string.link_key_url, url);
-        settings.addRows(text);
+        MinecraftProfile preview = new MinecraftProfile();
+        preview.packwizUrl = url;
+        preview.gameDir = INSTANCES_DIR + instanceFolder(profileName, url);
+        LinkText text = new LinkText(activity).row(R.string.link_key_minecraft, PackLinks.versions(pack));
+        settings.addRows(text, preview, true);
         text.sentence(R.string.link_import_download);
-        return new LinkAction(LinkText.title(activity, R.string.link_import_title, profileName), text.build(),
-                activity.getString(R.string.link_import_confirm)) {
+        return new LinkAction(activity.getString(R.string.link_import_title, profileName), settings.icon, text.build(),
+                activity.getString(R.string.global_save)) {
             @Override
             String apply() throws Exception {
                 MinecraftProfile profile = MinecraftProfile.createTemplate();
                 profile.name = profileName;
                 profile.packwizUrl = url;
+                profile.gameDir = preview.gameDir;
                 profile.lastVersionId = versionId;
                 settings.apply(profile);
                 LauncherProfiles.load();
-                profile.gameDir = INSTANCES_DIR + instanceFolder(profileName, url);
                 String key = LauncherProfiles.getFreeProfileKey();
                 LauncherProfiles.mainProfileJson.profiles.put(key, profile);
                 LauncherProfiles.write();
@@ -77,18 +65,28 @@ final class ProfileImportCommand implements LinkCommand {
         };
     }
 
+    /** Nothing to confirm: the profile already is what the link asks for. */
+    private static LinkAction select(Activity activity, String key) {
+        return new LinkAction(null, null, null, null) {
+            @Override
+            String apply() {
+                PackLinks.select(key);
+                return activity.getString(R.string.link_selected);
+            }
+        };
+    }
+
     /** Overrides what the link gives on the existing profile {@code key}. */
     private static LinkAction update(Activity activity, String key, PackToml pack, ProfileSettings settings) {
         MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(key);
-        String profileName = profile.name;
-        LinkText text = new LinkText(activity)
-                .row(R.string.link_key_pack, pack.title())
-                .row(R.string.link_key_minecraft, PackLinks.versions(pack));
-        settings.addChanges(text, profile);
+        String profileName = settings.name != null ? settings.name : profile.name;
+        LinkText text = new LinkText(activity).row(R.string.link_key_minecraft, PackLinks.versions(pack));
+        settings.addRows(text, profile, false);
         text.sentence(R.string.link_update_worlds);
 
-        return new LinkAction(LinkText.title(activity, R.string.link_update_title, profileName), text.build(),
-                activity.getString(R.string.link_update_confirm)) {
+        return new LinkAction(activity.getString(R.string.link_update_title, profileName),
+                settings.icon != null ? settings.icon : profile.icon, text.build(),
+                activity.getString(R.string.global_save)) {
             @Override
             String apply() throws Exception {
                 LauncherProfiles.load();
@@ -96,13 +94,14 @@ final class ProfileImportCommand implements LinkCommand {
                 if (current == null) throw new PackwizException(activity.getString(R.string.link_error_profile_removed, profileName));
                 settings.apply(current);
                 LauncherProfiles.write();
+                ProfileIconCache.dropIcon(key);
                 PackLinks.select(key);
                 return activity.getString(R.string.link_update_done, current.name);
             }
         };
     }
 
-    /** Readable and unique per pack URL, so two packs with the same name never share a directory. */
+    /** A readable id; two packs with the same name never share a directory. */
     private static String instanceFolder(String name, String url) throws Exception {
         String id = name.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
         if (id.isEmpty()) id = "pack";

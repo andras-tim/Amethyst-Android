@@ -7,7 +7,6 @@ import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
 import java.io.IOException;
-import java.util.Objects;
 
 /** What a link sets on a profile for this device; a field the link leaves out stays as it is. */
 final class ProfileSettings {
@@ -16,74 +15,73 @@ final class ProfileSettings {
     final int ram;
     final String renderer;
     final String control;
+    private final ControlLayout mControlLayout;
     final String java;
-    private final String iconUrl;
     private final Activity mActivity;
 
-    private ProfileSettings(Activity activity, String name, String icon, String iconUrl, int ram, String renderer, String control,
-                            String java) {
+    private ProfileSettings(Activity activity, String name, String icon, int ram, String renderer,
+                            ControlLayout controlLayout, String java) {
         mActivity = activity;
         this.name = name;
         this.icon = icon;
-        this.iconUrl = iconUrl;
         this.ram = ram;
         this.renderer = renderer;
-        this.control = control;
+        mControlLayout = controlLayout;
+        control = controlLayout == null ? null : controlLayout.file;
         this.java = java;
     }
 
     /** @param name the new name, null when the link has none or uses it to find the profile */
     static ProfileSettings read(Activity activity, Uri link, String name) throws IOException {
         String iconUrl = PackLinks.optionalParameter(link, "icon");
-        return new ProfileSettings(activity, name, iconUrl == null ? null : PackLinks.fetchIcon(activity, iconUrl), iconUrl,
+        return new ProfileSettings(activity, name, iconUrl == null ? null : PackLinks.fetchIcon(activity, iconUrl),
                 PackLinks.ramParameter(activity, link), PackLinks.rendererParameter(activity, link),
                 PackLinks.controlParameter(activity, link), PackLinks.javaParameter(activity, link));
     }
 
-    /** The rows of a new profile. */
-    void addRows(LinkText text) {
-        if (iconUrl != null) text.row(R.string.link_key_icon, iconUrl);
-        if (ram > 0) text.row(R.string.link_key_ram, ram + " MB");
-        if (renderer != null) text.row(R.string.link_key_renderer, renderer);
-        if (control != null) text.row(R.string.link_key_control, control);
-        if (java != null) text.row(R.string.link_key_java, java);
+    /** The rows in the order of the profile editor; a value the link changes shows the old one too. */
+    void addRows(LinkText text, MinecraftProfile profile, boolean isNew) {
+        addRow(text, R.string.link_key_control, control != null && control.equals(profile.controlFile)
+                ? mControlLayout.url : profile.controlFile, mControlLayout == null ? null : mControlLayout.url, isNew);
+        addRow(text, R.string.link_key_url, profile.packwizUrl, null, isNew);
+        addRow(text, R.string.link_key_ram, profile.ramAllocation > 0 ? megabytes(profile.ramAllocation) : null,
+                ram > 0 ? megabytes(ram) : null, isNew);
+        addRow(text, R.string.link_key_java, profile.javaDir, java, isNew);
+        addRow(text, R.string.link_key_renderer, profile.pojavRendererName, renderer, isNew);
+    }
+
+    private String megabytes(int value) {
+        return mActivity.getString(R.string.link_value_ram, value);
+    }
+
+    private void addRow(LinkText text, int label, String oldValue, String newValue, boolean isNew) {
+        if (differs(newValue, oldValue) && !isNew) {
+            text.change(label, oldValue, newValue);
+            return;
+        }
+        String value = newValue != null ? newValue : oldValue;
+        if (value != null) text.row(label, value);
+        else text.plainRow(label, mActivity.getString(R.string.link_value_default));
     }
 
     /** @return whether applying these settings would change the profile */
-    boolean changes(MinecraftProfile profile) {
-        return addChanges(new LinkText(mActivity), profile);
+    boolean changes(MinecraftProfile profile) throws IOException {
+        return (mControlLayout != null && mControlLayout.changes()) || differs(name, profile.name) || differs(icon, profile.icon) || (ram > 0 && ram != profile.ramAllocation)
+                || differs(control, profile.controlFile) || differs(java, profile.javaDir)
+                || differs(renderer, profile.pojavRendererName);
     }
 
-    /** One row for every field that would change; @return whether there is any */
-    boolean addChanges(LinkText text, MinecraftProfile profile) {
-        boolean changes = false;
-        changes |= addChange(text, R.string.link_key_name, profile.name, name);
-        if (icon != null && !icon.equals(profile.icon)) {
-            text.change(R.string.link_key_icon, profile.icon == null ? null : "...", iconUrl);
-            changes = true;
-        }
-        if (ram > 0 && ram != profile.ramAllocation) {
-            text.change(R.string.link_key_ram, profile.ramAllocation + " MB", ram + " MB");
-            changes = true;
-        }
-        changes |= addChange(text, R.string.link_key_renderer, profile.pojavRendererName, renderer);
-        changes |= addChange(text, R.string.link_key_control, profile.controlFile, control);
-        changes |= addChange(text, R.string.link_key_java, profile.javaDir, java);
-        return changes;
+    private static boolean differs(String value, String current) {
+        return value != null && !value.equals(current);
     }
 
-    void apply(MinecraftProfile profile) {
+    void apply(MinecraftProfile profile) throws IOException {
+        if (mControlLayout != null) mControlLayout.save();
         if (name != null) profile.name = name;
         if (icon != null) profile.icon = icon;
         if (ram > 0) profile.ramAllocation = ram;
         if (renderer != null) profile.pojavRendererName = renderer;
         if (control != null) profile.controlFile = control;
         if (java != null) profile.javaDir = java;
-    }
-
-    private static boolean addChange(LinkText text, int label, String oldValue, String newValue) {
-        if (newValue == null || Objects.equals(oldValue, newValue)) return false;
-        text.change(label, oldValue, newValue);
-        return true;
     }
 }

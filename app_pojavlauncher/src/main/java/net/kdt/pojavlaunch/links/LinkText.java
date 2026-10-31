@@ -3,62 +3,75 @@ package net.kdt.pojavlaunch.links;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TabStopSpan;
+import android.util.Base64;
 import android.util.TypedValue;
-import android.view.View;
-import android.widget.Toast;
+import android.view.ContextMenu;
+import android.widget.TextView;
 
 import net.kdt.pojavlaunch.R;
 
 /**
- * The body of a link confirmation: a compact table with a bold label per row, then an optional sentence. Only the new
- * value of a change has the accent color. A value is copied by tapping it, also a shortened URL in full, so a change
- * can be undone by hand.
+ * The body of a link confirmation: a compact table with a quiet label per row, then an optional sentence. A value has
+ * the accent color, as only values react to a press; the arrow and the new value of a change are bold. A long press on
+ * a value copies it, also a shortened URL in full, so a change can be undone by hand.
  */
 final class LinkText {
     private static final String ARROW = " \u2192 ";
     private static final String MISSING = "-";
     private static final String ELLIPSIS = "\u2026";
     private static final int MAX_VALUE_LENGTH = 40;
-    private static final int LABEL_COLUMN_DP = 84;
+    private static final int LABEL_COLUMN_DP = 72;
 
     private final Context mContext;
     private final SpannableStringBuilder mText = new SpannableStringBuilder();
     private final int mColumn;
-    private final int mNewColor;
+    private final int mValueColor;
+    private final int mQuietColor;
+    private String mLabel;
 
     LinkText(Context context) {
         mContext = context;
         mColumn = Math.round(LABEL_COLUMN_DP * context.getResources().getDisplayMetrics().density);
-        mNewColor = accentColor(context);
+        mValueColor = themeColor(context, android.R.attr.colorAccent);
+        mQuietColor = themeColor(context, android.R.attr.textColorSecondary);
     }
 
-    /** A title with the profile's name in the accent color. */
-    static CharSequence title(Context context, int title, String name) {
-        String text = context.getString(title, name);
-        SpannableStringBuilder styled = new SpannableStringBuilder(text);
-        int start = text.indexOf(name);
-        styled.setSpan(new ForegroundColorSpan(accentColor(context)), start, start + name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return styled;
+    /** @param icon a profile's "data:image/png;base64," icon, or null */
+    static Bitmap iconBitmap(String icon) {
+        if (icon == null || !icon.contains(",")) return null;
+        byte[] png = Base64.decode(icon.substring(icon.indexOf(',') + 1), Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(png, 0, png.length);
     }
 
-    private static int accentColor(Context context) {
+    private static int themeColor(Context context, int attribute) {
         TypedValue color = new TypedValue();
-        context.getTheme().resolveAttribute(android.R.attr.colorAccent, color, true);
+        context.getTheme().resolveAttribute(attribute, color, true);
+        if (color.resourceId != 0) return context.getColorStateList(color.resourceId).getDefaultColor();
         return color.data;
     }
 
     LinkText row(int label, String value) {
         int start = startRow(label);
-        addValue(shorten(value), value, false);
+        int values = mText.length();
+        addValue(shorten(value), false);
+        endValues(values, null, value);
+        endRow(start);
+        return this;
+    }
+
+    /** A row whose value is not worth copying. */
+    LinkText plainRow(int label, String value) {
+        int start = startRow(label);
+        mText.append(value);
         endRow(start);
         return this;
     }
@@ -70,9 +83,14 @@ final class LinkText {
         int prefix = Math.max(old.lastIndexOf('/', sharedPrefix(old, newValue) - 2) + 1, 0);
         String shared = prefix > 0 ? ELLIPSIS + "/" : "";
         int start = startRow(label);
-        addValue(shared + old.substring(prefix), old, false);
+        int values = mText.length();
+        if (oldValue == null) mText.append(MISSING);
+        else addValue(prefix > 0 ? shared + old.substring(prefix) : shorten(old), false);
+        int arrow = mText.length();
         mText.append(ARROW);
-        addValue(shared + newValue.substring(prefix), newValue, true);
+        mText.setSpan(new StyleSpan(Typeface.BOLD), arrow, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        addValue(prefix > 0 ? shared + newValue.substring(prefix) : shorten(newValue), true);
+        endValues(values, oldValue, newValue);
         endRow(start);
         return this;
     }
@@ -82,7 +100,11 @@ final class LinkText {
     }
 
     LinkText sentence(String text) {
-        mText.append("\n\n").append(text);
+        mText.append("\n\n");
+        int start = mText.length();
+        mText.append(text);
+        mText.setSpan(new ForegroundColorSpan(mQuietColor), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mText.setSpan(new StyleSpan(Typeface.ITALIC), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return this;
     }
 
@@ -90,11 +112,42 @@ final class LinkText {
         return mText;
     }
 
+    /** A long press on a value opens a menu with its copy actions; the rest of the text stays plain. */
+    static void enableCopy(TextView message) {
+        float[] press = new float[2];
+        message.setOnTouchListener((view, event) -> {
+            press[0] = event.getX();
+            press[1] = event.getY();
+            return false;
+        });
+        message.setOnCreateContextMenuListener((menu, view, info) -> {
+            int offset = message.getOffsetForPosition(press[0], press[1]);
+            Values[] found = ((Spanned) message.getText()).getSpans(offset, offset, Values.class);
+            if (found.length == 0) return;
+            Context context = message.getContext();
+            if (found[0].original == null) {
+                addCopy(menu, context, context.getString(R.string.link_copy_value, found[0].label), found[0].current);
+            } else {
+                addCopy(menu, context, context.getString(R.string.link_copy_original, found[0].label), found[0].original);
+                addCopy(menu, context, context.getString(R.string.link_copy_new, found[0].label), found[0].current);
+            }
+        });
+    }
+
+    private static void addCopy(ContextMenu menu, Context context, String title, String value) {
+        menu.add(title).setOnMenuItemClickListener(item -> {
+            ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboard.setPrimaryClip(ClipData.newPlainText(title, value));
+            return true;
+        });
+    }
+
     private int startRow(int label) {
         if (mText.length() > 0) mText.append('\n');
         int start = mText.length();
-        mText.append(mContext.getString(label));
-        mText.setSpan(new StyleSpan(Typeface.BOLD), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mLabel = mContext.getString(label);
+        mText.append(mLabel);
+        mText.setSpan(new ForegroundColorSpan(mQuietColor), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mText.append('\t');
         return start;
     }
@@ -109,27 +162,16 @@ final class LinkText {
         return end <= host ? path : path.substring(0, host) + "/" + ELLIPSIS + path.substring(end);
     }
 
-    private void addValue(String shown, String value, boolean highlighted) {
+    private void addValue(String shown, boolean bold) {
         int start = mText.length();
         // a zero width space lets a long URL wrap inside its column
         mText.append(shown.replace("/", "/\u200B"));
-        mText.setSpan(new ClickableSpan() {
-            @Override
-            public void onClick(View view) {
-                ClipboardManager clipboard = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-                clipboard.setPrimaryClip(ClipData.newPlainText(value, value));
-                Toast.makeText(mContext, R.string.link_copied, Toast.LENGTH_SHORT).show();
-            }
+        mText.setSpan(new ForegroundColorSpan(mValueColor), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if (bold) mText.setSpan(new StyleSpan(Typeface.BOLD), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
 
-            @Override
-            public void updateDrawState(TextPaint paint) {
-                // keeps the row's look: the tap is a shortcut, not a link
-            }
-        }, start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        if (highlighted) {
-            mText.setSpan(new ForegroundColorSpan(mNewColor), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            mText.setSpan(new StyleSpan(Typeface.BOLD), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
+    private void endValues(int start, String original, String current) {
+        mText.setSpan(new Values(mLabel, original, current), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     /** Up to and including the last shared slash. */
@@ -139,6 +181,19 @@ final class LinkText {
             if (first.charAt(i) == '/') length = i + 1;
         }
         return length;
+    }
+
+    /** Marks a row's values with what they are in full; original is null unless the row is a change. */
+    private static final class Values {
+        final String label;
+        final String original;
+        final String current;
+
+        Values(String label, String original, String current) {
+            this.label = label;
+            this.original = original;
+            this.current = current;
+        }
     }
 
     private void endRow(int start) {
