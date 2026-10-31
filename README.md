@@ -29,6 +29,9 @@ Amethyst team. Everything below the line is the upstream README.
     mods and the configs. The parameters only decide how it runs on this device, so none of them can change the versions;
   - no link writes a launcher setting;
   - the debug build uses `amethyst-debug://`, so it never competes with a release build for a link.
+- **Resolution from the display.** The first start of a fresh install sets the resolution scale to give 540 lines on
+  the physical display, in the scaler's 5 % steps: 75 % at 720p, 50 % at 1080p, 40 % at 1440p. It runs once, and an
+  install that already has preferences keeps what it had. The value stays a normal setting in Video and renderer.
 - **Memory per profile.** "Memory (MB)" in the profile editor overrides the global setting for that profile.
 - **Adding a pack by hand.** "Create packwiz pack profile (URL)" in the new profile list asks for the `pack.toml` URL
   and then works like the import link.

@@ -75,10 +75,17 @@ public class LauncherPreferences {
     public static boolean PREF_MOUSE_GRAB_FORCE = false;
     public static boolean PREF_KEYBOARD_PANNING = true;
 
+    // Measured on a Snapdragon 855+ phone with a 1080 line display: 59 FPS at 50 %, 43 FPS at 70 %, flying at distance 6
+    private static final int FIRST_START_RESOLUTION_LINES = 540;
+
 
     public static void loadPreferences(Context ctx) {
         //Required for CTRLDEF_FILE and MultiRT
         Tools.initStorageConstants(ctx);
+        // Stored, so it runs once. Installs that already have preferences keep what they had.
+        if (DEFAULT_PREF.getAll().isEmpty()) {
+            DEFAULT_PREF.edit().putInt("resolutionRatio", resolutionForLines(ctx, FIRST_START_RESOLUTION_LINES)).apply();
+        }
         boolean isDevicePowerful = isDevicePowerful(ctx);
 
         PREF_BUTTONSIZE = DEFAULT_PREF.getInt("buttonscale", 100);
@@ -174,14 +181,15 @@ public class LauncherPreferences {
     }
 
     /** The resolution scale, in the settings screen's steps, that gives this many lines on the physical display. */
-    public static int resolutionForLines(Context context, int targetSide) {
+    private static int resolutionForLines(Context context, int targetSide) {
         int minSide = getDisplayMinSide(context);
         if (minSide <= targetSide) return 100; // No need to scale down
 
         float ratio = (100f * targetSide / minSide);
         // The value must match the seekbar values
         int increment = context.getResources().getInteger(R.integer.resolution_seekbar_increment);
-        return (int) (Math.ceil(ratio / increment) * increment);
+        int min = context.getResources().getInteger(R.integer.resolution_seekbar_min);
+        return Math.max(min, (int) (Math.ceil(ratio / increment) * increment));
     }
 
     /// Check if the device is considered powerful.
