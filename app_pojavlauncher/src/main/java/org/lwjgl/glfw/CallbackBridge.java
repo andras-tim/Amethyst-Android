@@ -2,6 +2,7 @@ package org.lwjgl.glfw;
 
 import net.kdt.pojavlaunch.*;
 import net.kdt.pojavlaunch.customcontrols.gamepad.direct.DirectGamepadEnableHandler;
+import net.kdt.pojavlaunch.customcontrols.gamepad.direct.GamepadKeycodes;
 import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 
 import android.content.*;
@@ -375,6 +376,9 @@ public class CallbackBridge {
         System.loadLibrary("pojavexec");
         sGamepadButtonBuffer = nativeCreateGamepadButtonBuffer();
         sGamepadAxisBuffer = createGamepadAxisBuffer();
+        // GLFW's released position: mods read the fake gamepad before any real one sends an event
+        sGamepadAxisBuffer.put(GamepadKeycodes.GLFW_GAMEPAD_AXIS_LEFT_TRIGGER, -1);
+        sGamepadAxisBuffer.put(GamepadKeycodes.GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER, -1);
     }
 }
 

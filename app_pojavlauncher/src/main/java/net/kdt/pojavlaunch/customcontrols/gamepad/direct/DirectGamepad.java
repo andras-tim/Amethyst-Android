@@ -22,10 +22,12 @@ public class DirectGamepad implements GamepadHandler {
             case KeyEvent.KEYCODE_BUTTON_L2:
             case MotionEvent.AXIS_LTRIGGER:
                 gAxis = GamepadKeycodes.GLFW_GAMEPAD_AXIS_LEFT_TRIGGER;
+                value = toGlfwTrigger(value);
                 break;
             case KeyEvent.KEYCODE_BUTTON_R2:
             case MotionEvent.AXIS_RTRIGGER:
                 gAxis = GamepadKeycodes.GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER;
+                value = toGlfwTrigger(value);
                 break;
             case KeyEvent.KEYCODE_BUTTON_THUMBL: gKeycode = GamepadKeycodes.GLFW_GAMEPAD_BUTTON_LEFT_THUMB; break;
             case KeyEvent.KEYCODE_BUTTON_THUMBR: gKeycode = GamepadKeycodes.GLFW_GAMEPAD_BUTTON_RIGHT_THUMB; break;
@@ -74,5 +76,10 @@ public class DirectGamepad implements GamepadHandler {
         if(gAxis != -1) {
             sGamepadAxisBuffer.put(gAxis, value);
         }
+    }
+
+    /** Android reports a trigger from 0 to 1, GLFW from -1 (released) to 1. */
+    private static float toGlfwTrigger(float value) {
+        return value * 2 - 1;
     }
 }
