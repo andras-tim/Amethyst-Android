@@ -38,6 +38,8 @@ public class ControlButton extends TextView implements ControlInterface {
     private float mComputedRadius;
 
     protected boolean mIsToggled = false;
+    private static final String ARROW_UP = "\u25b2";
+    private static final String ARROW_DOWN = "\u25bc";
     protected boolean mIsPointerOutOfBounds = false;
 
     public ControlButton(ControlLayout layout, ControlData properties) {
@@ -56,6 +58,16 @@ public class ControlButton extends TextView implements ControlInterface {
         setProperties(preProcessProperties(properties, layout));
 
         injectBehaviors();
+    }
+
+    /**
+     * A controls toggle labelled with an arrow points where a press moves the controls: up folds them, down unfolds
+     * them. Other labels stay as they are.
+     */
+    public void showControlState(boolean controlsVisible) {
+        if (!mProperties.containsKeycode(ControlData.SPECIALBTN_TOGGLECTRL)) return;
+        if (!ARROW_UP.equals(mProperties.name) && !ARROW_DOWN.equals(mProperties.name)) return;
+        setText(controlsVisible ? ARROW_UP : ARROW_DOWN);
     }
 
     @Override

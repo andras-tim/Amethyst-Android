@@ -253,6 +253,7 @@ public class ControlLayout extends FrameLayout {
 		mControlVisible = isVisible;
 		for(ControlInterface button : getButtonChildren()){
 			button.setVisible(((button.getProperties().displayInGame && isGrabbing()) || (button.getProperties().displayInMenu && !isGrabbing())) && isVisible);
+			if(button instanceof ControlButton) ((ControlButton) button).showControlState(isVisible);
 		}
 	}
 
