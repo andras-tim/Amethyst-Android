@@ -32,6 +32,7 @@ import net.kdt.pojavlaunch.customcontrols.ControlLayout;
 import net.kdt.pojavlaunch.customcontrols.gamepad.DefaultDataProvider;
 import net.kdt.pojavlaunch.customcontrols.gamepad.Gamepad;
 import net.kdt.pojavlaunch.customcontrols.gamepad.GamepadAutoMap;
+import net.kdt.pojavlaunch.customcontrols.gamepad.GamepadTouchControls;
 import net.kdt.pojavlaunch.customcontrols.gamepad.direct.DirectGamepad;
 import net.kdt.pojavlaunch.customcontrols.gamepad.direct.DirectGamepadEnableHandler;
 import net.kdt.pojavlaunch.customcontrols.mouse.AbstractTouchpad;
@@ -78,6 +79,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
             .remapRightTrigger(true)
             .remapDpad(true);
     private RemapperManager mInputManager = new RemapperManager(getContext(), mRemapperBuilder);
+    private GamepadTouchControls mTouchControls;
 
     /* Sensitivity, adjusted according to screen size */
     private final double mSensitivityFactor = (1.4 * (1080f/ Tools.getDisplayMetrics((Activity) getContext()).heightPixels));
@@ -246,6 +248,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     public boolean onTouchEvent(MotionEvent e) {
         // Kinda need to send this back to the layout
         if(((ControlLayout)getParent()).getModifiable()) return false;
+        if(mTouchControls != null) mTouchControls.onTouch();
 
         // Looking for a mouse to handle, won't have an effect if no mouse exists.
         for (int i = 0; i < e.getPointerCount(); i++) {
@@ -273,6 +276,10 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
         TouchControllerUtils.processTouchEvent(e, this);
         if (mIngameProcessor == null || mInGUIProcessor == null) return true;
         return mCurrentTouchProcessor.processTouchEvent(e);
+    }
+
+    public void setTouchControls(GamepadTouchControls touchControls) {
+        mTouchControls = touchControls;
     }
 
     private void createGamepad(View contextView, InputDevice inputDevice) {
@@ -305,6 +312,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
 
         if(Gamepad.isGamepadEvent(event)){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
+            if(mTouchControls != null) mTouchControls.onGamepadInput(event);
             if(GamepadAutoMap.store(getContext(), event.getDevice())) mInputManager = new RemapperManager(getContext(), mRemapperBuilder);
 
             mInputManager.handleMotionEventInput(getContext(), event, mGamepadHandler);
@@ -392,6 +400,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
         }
         if(isGamepadEvent){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
+            if(mTouchControls != null) mTouchControls.onGamepadInput();
             if(GamepadAutoMap.store(getContext(), event.getDevice())) mInputManager = new RemapperManager(getContext(), mRemapperBuilder);
 
             mInputManager.handleKeyEventInput(getContext(), event, mGamepadHandler);
