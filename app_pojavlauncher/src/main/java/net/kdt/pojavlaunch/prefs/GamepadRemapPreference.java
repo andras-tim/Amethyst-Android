@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.preference.Preference;
 
 import net.kdt.pojavlaunch.R;
+import net.kdt.pojavlaunch.customcontrols.gamepad.GamepadAutoMap;
 
 import fr.spse.gamepad_remapper.Remapper;
 
@@ -27,6 +28,7 @@ public class GamepadRemapPreference extends Preference {
     private void init(){
         setOnPreferenceClickListener(preference -> {
             Remapper.wipePreferences(getContext());
+            GamepadAutoMap.requestWizard(getContext());
             Toast.makeText(getContext(), R.string.preference_controller_map_wiped, Toast.LENGTH_SHORT).show();
             return true;
         });

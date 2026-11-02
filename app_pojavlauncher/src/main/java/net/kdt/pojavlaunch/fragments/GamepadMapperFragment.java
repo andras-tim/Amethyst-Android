@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.customcontrols.gamepad.Gamepad;
+import net.kdt.pojavlaunch.customcontrols.gamepad.GamepadAutoMap;
 import net.kdt.pojavlaunch.customcontrols.gamepad.GamepadMapperAdapter;
 
 import fr.spse.gamepad_remapper.RemapperManager;
@@ -96,6 +97,7 @@ public class GamepadMapperFragment extends Fragment implements
         View mainView = getView();
         if(!Gamepad.isGamepadEvent(keyEvent) || mainView == null) return false;
         if(mGamepad == null) createGamepad(mainView, keyEvent.getDevice());
+        if(GamepadAutoMap.store(mainView.getContext(), keyEvent.getDevice())) mInputManager = new RemapperManager(mainView.getContext(), mRemapperViewBuilder);
         mInputManager.handleKeyEventInput(mainView.getContext(), keyEvent, mGamepad);
         return true;
     }
@@ -105,6 +107,7 @@ public class GamepadMapperFragment extends Fragment implements
         View mainView = getView();
         if(!Gamepad.isGamepadEvent(motionEvent) || mainView == null) return false;
         if(mGamepad == null) createGamepad(mainView, motionEvent.getDevice());
+        if(GamepadAutoMap.store(mainView.getContext(), motionEvent.getDevice())) mInputManager = new RemapperManager(mainView.getContext(), mRemapperViewBuilder);
         mInputManager.handleMotionEventInput(mainView.getContext(), motionEvent, mGamepad);
         return true;
     }
