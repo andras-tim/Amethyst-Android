@@ -15,3 +15,9 @@ git diff --stat "$(git merge-base upstream/v3_openjdk HEAD)" HEAD
 - Keep changes in upstream files small and new code in new files, so the next merge stays easy.
 - Don't change upstream code without a need. No site or pack specific value in the APK.
 - Report the result with the change: commits behind, conflicting files, and what the change added to them.
+
+## Releases
+
+Release tags are `<upstream version>-dras.<n>` (e.g. `1.1.7-dras.7`): signed, annotated, with a bullet changelog in the
+tag message, and a GitHub release taken from it. A release only when the user asks for it at the end of a round:
+fixes collect on the branch, not one release per fix.
