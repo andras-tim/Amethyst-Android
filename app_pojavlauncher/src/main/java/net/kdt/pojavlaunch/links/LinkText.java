@@ -8,16 +8,21 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TabStopSpan;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.widget.TextView;
 
 import net.kdt.pojavlaunch.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The body of a link confirmation: a compact table with a quiet label per row, then an optional sentence. A value has
@@ -29,18 +34,24 @@ final class LinkText {
     private static final String MISSING = "-";
     private static final String ELLIPSIS = "\u2026";
     private static final int MAX_VALUE_LENGTH = 40;
-    private static final int LABEL_COLUMN_DP = 72;
+    private static final int MIN_LABEL_COLUMN_DP = 72;
+    private static final int LABEL_GAP_DP = 8;
 
     private final Context mContext;
     private final SpannableStringBuilder mText = new SpannableStringBuilder();
-    private final int mColumn;
+    private final DisplayMetrics mMetrics;
+    private final TextPaint mLabelPaint = new TextPaint();
+    private final List<int[]> mRows = new ArrayList<>();
+    private float mWidestLabel;
     private final int mValueColor;
     private final int mQuietColor;
     private String mLabel;
 
     LinkText(Context context) {
         mContext = context;
-        mColumn = Math.round(LABEL_COLUMN_DP * context.getResources().getDisplayMetrics().density);
+        mMetrics = context.getResources().getDisplayMetrics();
+        mLabelPaint.setTextSize(
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, LinkRouter.MESSAGE_TEXT_SP, mMetrics));
         mValueColor = themeColor(context, android.R.attr.colorAccent);
         mQuietColor = themeColor(context, android.R.attr.textColorSecondary);
     }
@@ -108,7 +119,15 @@ final class LinkText {
         return this;
     }
 
+    /** The label column is as wide as the widest label of this text, so a longer translation still fits. */
     CharSequence build() {
+        float density = mMetrics.density;
+        int column = Math.round(Math.max(MIN_LABEL_COLUMN_DP * density, mWidestLabel + LABEL_GAP_DP * density));
+        for (int[] row : mRows) {
+            mText.setSpan(new TabStopSpan.Standard(column), row[0], row[1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mText.setSpan(new LeadingMarginSpan.Standard(0, column), row[0], row[1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        mRows.clear();
         return mText;
     }
 
@@ -146,6 +165,7 @@ final class LinkText {
         if (mText.length() > 0) mText.append('\n');
         int start = mText.length();
         mLabel = mContext.getString(label);
+        mWidestLabel = Math.max(mWidestLabel, mLabelPaint.measureText(mLabel));
         mText.append(mLabel);
         mText.setSpan(new ForegroundColorSpan(mQuietColor), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         mText.append('\t');
@@ -197,7 +217,6 @@ final class LinkText {
     }
 
     private void endRow(int start) {
-        mText.setSpan(new TabStopSpan.Standard(mColumn), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mText.setSpan(new LeadingMarginSpan.Standard(0, mColumn), start, mText.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mRows.add(new int[] {start, mText.length()});
     }
 }

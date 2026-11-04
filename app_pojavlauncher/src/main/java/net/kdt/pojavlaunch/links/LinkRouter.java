@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public final class LinkRouter {
     private static final String TAG = "LinkRouter";
-    private static final int MESSAGE_TEXT_SP = 13;
+    static final int MESSAGE_TEXT_SP = 13;
     private static final int LINE_GAP_DP = 4;
     private static final Map<String, LinkCommand> COMMANDS = new LinkedHashMap<>();
 
