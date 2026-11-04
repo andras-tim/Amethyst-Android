@@ -183,6 +183,11 @@ android {
         coreLibraryDesugaringEnabled true
     }
 
+    // the system's per-app language setting lists the values-* languages (Android 13+)
+    androidResources {
+        generateLocaleConfig true
+    }
+
     bundle {
         language {
             enableSplit = false
