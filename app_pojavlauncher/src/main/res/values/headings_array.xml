@@ -51,12 +51,11 @@
         <item>default</item>
         <item>bmclapi</item>
     </string-array>
-    <!--TODO: Make this translatable-->
     <string-array name="mg_renderer_names_angle">
-        <item>Disable if possible</item>
-        <item>Enable if possible</item>
-        <item>Disabled</item>
-        <item>Enabled</item>
+        <item>@string/mg_option_disable_if_possible</item>
+        <item>@string/mg_option_enable_if_possible</item>
+        <item>@string/mg_option_disabled</item>
+        <item>@string/mg_option_enabled</item>
     </string-array>
     <string-array name="mg_renderer_values_angle">
         <item>0</item>
@@ -80,10 +79,10 @@
         <item>4</item>
     </string-array>
     <string-array name="mg_renderer_names_errorSetting">
-        <item>Auto</item>
-        <item>Don\'t ignore</item>
-        <item>Ignore shader/program errors</item>
-        <item>Ignore shader/program/framebuffer errors</item>
+        <item>@string/mg_option_auto</item>
+        <item>@string/mg_error_dont_ignore</item>
+        <item>@string/mg_error_ignore_shader_program</item>
+        <item>@string/mg_error_ignore_shader_program_framebuffer</item>
     </string-array>
     <string-array name="mg_renderer_values_errorSetting">
         <item>0</item>
@@ -93,11 +92,11 @@
         <item>4</item>
     </string-array>
     <string-array name="mg_renderer_names_fsr">
-        <item>Disabled</item>
-        <item>Performance</item>
-        <item>Balanced</item>
-        <item>Quality</item>
-        <item>Ultra Quality</item>
+        <item>@string/mg_option_disabled</item>
+        <item>@string/mg_fsr_performance</item>
+        <item>@string/mg_fsr_balanced</item>
+        <item>@string/mg_fsr_quality</item>
+        <item>@string/mg_fsr_ultra_quality</item>
     </string-array>
     <string-array name="mg_renderer_values_fsr">
         <item>0</item>

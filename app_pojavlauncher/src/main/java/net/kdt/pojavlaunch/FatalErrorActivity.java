@@ -25,8 +25,8 @@ public class FatalErrorActivity extends AppCompatActivity {
 		final String stackTrace = throwable != null ? Tools.printToString(throwable) : "<null>";
 		String strSavePath = extras.getString("savePath");
 		String errHeader = storageAllow ?
-			"Crash stack trace saved to " + strSavePath + "." :
-			"Storage permission is required to save crash stack trace!";
+			getString(R.string.fatal_error_trace_saved, strSavePath) :
+			getString(R.string.fatal_error_storage_required);
 		
 		new AlertDialog.Builder(this)
 			.setTitle(R.string.error_fatal)

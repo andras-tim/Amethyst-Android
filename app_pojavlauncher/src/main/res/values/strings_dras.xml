@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Amethyst::Dras strings, out of strings.xml: upstream merges and Crowdin leave this file alone -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <!-- Texts hard-coded in upstream's layouts and code; for an upstream PR they move to strings.xml -->
+    <string name="auth_method_microsoft">Microsoft Account</string>
+    <string name="auth_method_local">Local account</string>
+    <string name="modpack_browse">Browse Modpacks</string>
+    <string name="modpack_import_file">Import Zip or mrpack</string>
+    <string name="pedit_custom_path">Custom path</string>
+    <string name="import_control_file_name_label">File name:</string>
+    <string name="import_control_file_name_hint">File name</string>
+    <string name="java_gui_keyboard">Keyboard</string>
+    <string name="customctrl_button_name_hint">Button Name</string>
+    <string name="preference_disable_autojre_select_title">Disable automatic JRE selection</string>
+    <string name="microsoft_login_started">Login started !</string>
+    <string name="file_list_not_found">This folder (or file) doesn\'t exist</string>
+    <string name="fatal_error_trace_saved">Crash stack trace saved to %1$s.</string>
+    <string name="fatal_error_storage_required">Storage permission is required to save crash stack trace!</string>
+    <!-- MobileGlues list entries, hard-coded in upstream's headings_array.xml -->
+    <string name="mg_option_auto">Auto</string>
+    <string name="mg_option_disabled">Disabled</string>
+    <string name="mg_option_enabled">Enabled</string>
+    <string name="mg_option_disable_if_possible">Disable if possible</string>
+    <string name="mg_option_enable_if_possible">Enable if possible</string>
+    <string name="mg_error_dont_ignore">Don\'t ignore</string>
+    <string name="mg_error_ignore_shader_program">Ignore shader/program errors</string>
+    <string name="mg_error_ignore_shader_program_framebuffer">Ignore shader/program/framebuffer errors</string>
+    <string name="mg_fsr_performance">Performance</string>
+    <string name="mg_fsr_balanced">Balanced</string>
+    <string name="mg_fsr_quality">Quality</string>
+    <string name="mg_fsr_ultra_quality">Ultra Quality</string>
     <!-- packwiz pack sync -->
     <string name="packwiz_profile_button">Create packwiz pack profile (URL)</string>
     <string name="packwiz_profile_url_title">pack.toml URL of the packwiz pack</string>

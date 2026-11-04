@@ -150,7 +150,7 @@ public class FileListView extends LinearLayout
                     fileSelectedListener.onFileSelected(path, path.getAbsolutePath());
                 }
             } else {
-                Toast.makeText(context, "This folder (or file) doesn't exist", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.file_list_not_found, Toast.LENGTH_SHORT).show();
                 refreshPath();
             }
         } catch (Exception e){
