@@ -229,6 +229,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             // FIXME: is it safe for multi thread?
             GLOBAL_CLIPBOARD = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             touchCharInput.setCharacterSender(new LwjglCharSender());
+            touchCharInput.enableGameKeys();
 
             touchControllerInputView.setInputAreaRectListener(this);
 

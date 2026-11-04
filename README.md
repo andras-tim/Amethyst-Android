@@ -35,6 +35,10 @@ Amethyst team. Everything below the line is the upstream README.
 - **Resolution from the display.** The first start of a fresh install sets the resolution scale to give 540 lines on
   the physical display, in the scaler's 5 % steps: 75 % at 720p, 50 % at 1080p, 40 % at 1440p. It runs once, and an
   install that already has preferences keeps what it had. The value stays a normal setting in Video and renderer.
+- **Soft keyboard as a PC keyboard.** In the game a typed letter is a key press with its character, so the key bindings
+  of the game and the mods work from the phone's keyboard (`J` opens the JourneyMap map, `E` the inventory), and chat
+  and text fields still get the text. The keyboard shows lowercase letters without suggestions; Shift types capitals,
+  an accented letter is only typed. The keyboard button of the touch controls opens and closes it on every press.
 - **Memory per profile.** "Memory (MB)" in the profile editor overrides the global setting for that profile.
 - **Adding a pack by hand.** "Create packwiz pack profile (URL)" in the new profile list asks for the `pack.toml` URL
   and then works like the import link.

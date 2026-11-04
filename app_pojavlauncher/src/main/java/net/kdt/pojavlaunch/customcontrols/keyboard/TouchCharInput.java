@@ -5,9 +5,12 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.Selection;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
@@ -39,6 +42,23 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
 
     private boolean mIsDoingInternalChanges = false;
     private CharacterSenderStrategy mCharacterSender;
+    private boolean mGameKeys = false;
+
+    /** The soft keyboard works as a PC keyboard: key presses with their characters, see GameKeyInputConnection. */
+    public void enableGameKeys() {
+        mGameKeys = true;
+    }
+
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        if (!mGameKeys) return super.onCreateInputConnection(outAttrs);
+        // No text field: the keyboard sends plain keys, without automatic capitals, suggestions or composing
+        outAttrs.inputType = InputType.TYPE_NULL;
+        outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                | EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING;
+        return new GameKeyInputConnection(this);
+    }
+
     private InputMethodManager getInputMethodManager() {
         return (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
     }
