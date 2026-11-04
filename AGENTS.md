@@ -14,6 +14,10 @@ git diff --stat "$(git merge-base upstream/v3_openjdk HEAD)" HEAD
 
 - Keep changes in upstream files small and new code in new files, so the next merge stays easy.
 - Don't change upstream code without a need. No site or pack specific value in the APK.
+- Texts of the fork go into `values/strings_dras.xml`, their Hungarian into `values-hu/strings_dras.xml`. The
+  `values*/strings.xml` files stay as upstream and its Crowdin have them; a Hungarian text Crowdin lacks also goes into
+  `values-hu/strings_dras.xml`. When a merge brings it from Crowdin, the build fails with "Duplicate resources": drop
+  ours.
 - Report the result with the change: commits behind, conflicting files, and what the change added to them.
 
 ## Releases

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Amethyst::Dras strings, out of strings.xml: upstream merges and Crowdin leave this file alone -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <!-- packwiz pack sync -->
+    <string name="packwiz_profile_button">Create packwiz pack profile (URL)</string>
+    <string name="packwiz_profile_url_title">pack.toml URL of the packwiz pack</string>
+    <string name="packwiz_url_label">Packwiz pack URL</string>
+    <string name="profile_ram_label">Memory (MB)</string>
+    <string name="packwiz_url_hint">https://…/pack.toml (optional)</string>
+    <string name="packwiz_progress_checking">Checking the pack</string>
+    <string name="packwiz_sync_failed_title">The pack could not be updated</string>
+    <string name="packwiz_play_installed">Play installed version</string>
+    <string name="packwiz_share_log">Share log</string>
+    <string name="packwiz_installing_loader">Installing %1$s %2$s. Press Play again when the installer has finished.</string>
+    <!-- amethyst:// links -->
+    <string name="microsoft_login_open_browser">Open in the system browser</string>
+    <string name="link_opening">Opening the link…</string>
+    <string name="link_failed_title">This link cannot be opened</string>
+    <string name="link_unknown_command">Unknown link command \"%1$s\". This launcher knows: %2$s</string>
+    <string name="link_error_missing_parameter">The link has no \"%1$s\" parameter</string>
+    <string name="link_error_ram">The link\'s memory must be a number of MB, at least 512: %1$s</string>
+    <string name="link_error_icon">The icon is not a PNG image of at most 1024 x 1024 pixels</string>
+    <string name="link_error_name">The link\'s profile name is not valid</string>
+    <string name="link_error_https">The link\'s address must use https: %1$s</string>
+    <string name="link_error_too_large">The file is larger than expected</string>
+    <string name="link_error_profile_removed">The profile \"%1$s\" was removed meanwhile</string>
+    <string name="link_error_renderer">The link\'s renderer is not available on this device: %1$s</string>
+    <string name="link_error_control_layout">Not a control layout: %1$s</string>
+    <string name="link_error_java">The link\'s Java runtime is not installed: %1$s</string>
+    <string name="link_copy_value">Copy %1$s</string>
+    <string name="link_copy_original">Copy original %1$s</string>
+    <string name="link_copy_new">Copy new %1$s</string>
+    <string name="link_key_minecraft">Minecraft</string>
+    <string name="link_key_url">Packwiz</string>
+    <string name="link_key_ram">Memory</string>
+    <string name="link_key_renderer">Renderer</string>
+    <string name="link_key_control">Controls</string>
+    <string name="link_key_java">Java</string>
+    <string name="link_value_default">(default)</string>
+    <string name="link_value_ram">%1$d MB</string>
+    <string name="link_import_title">%1$s new profile</string>
+    <string name="link_update_title">%1$s profile update</string>
+    <string name="link_import_download">The pack\'s files are downloaded when you press Play.</string>
+    <string name="link_import_done">Profile added: %1$s</string>
+    <string name="link_selected">Profile already up to date, selected</string>
+    <string name="link_update_worlds">The worlds stay.</string>
+    <string name="link_update_done">Profile updated: %1$s</string>
+</resources>

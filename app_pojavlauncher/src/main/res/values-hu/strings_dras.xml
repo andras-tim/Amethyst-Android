@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Amethyst::Dras Hungarian, out of strings.xml: upstream merges and Crowdin leave this file alone -->
+<resources>
+    <!-- packwiz pack sync -->
+    <string name="packwiz_profile_button">Packwiz profil létrehozása (URL)</string>
+    <string name="packwiz_profile_url_title">A packwiz modpack pack.toml URL-je</string>
+    <string name="packwiz_url_label">Packwiz modpack URL</string>
+    <string name="profile_ram_label">Memória (MB)</string>
+    <string name="packwiz_url_hint">https://…/pack.toml (nem kötelező)</string>
+    <string name="packwiz_progress_checking">Modpack ellenőrzése</string>
+    <string name="packwiz_sync_failed_title">Nem sikerült frissíteni a modpacket</string>
+    <string name="packwiz_play_installed">Telepített verzió indítása</string>
+    <string name="packwiz_share_log">Napló megosztása</string>
+    <string name="packwiz_installing_loader">%1$s %2$s telepítése. Ha a telepítő végzett, nyomd meg újra az Indítás gombot.</string>
+    <!-- amethyst:// links -->
+    <string name="microsoft_login_open_browser">Megnyitás a rendszer böngészőjében</string>
+    <string name="link_opening">Link megnyitása…</string>
+    <string name="link_failed_title">Ez a link nem nyitható meg</string>
+    <string name="link_unknown_command">Ismeretlen linkparancs: \"%1$s\". Ez az indító ezeket ismeri: %2$s</string>
+    <string name="link_error_missing_parameter">A linkből hiányzik ez a paraméter: \"%1$s\"</string>
+    <string name="link_error_ram">A link memóriaértéke MB-ban megadott szám legyen, legalább 512: %1$s</string>
+    <string name="link_error_icon">Az ikon nem legfeljebb 1024 x 1024 pixeles PNG kép</string>
+    <string name="link_error_name">A linkben megadott profilnév érvénytelen</string>
+    <string name="link_error_https">A linkben megadott címnek https-t kell használnia: %1$s</string>
+    <string name="link_error_too_large">A fájl nagyobb a vártnál</string>
+    <string name="link_error_profile_removed">Ez a profil közben törlődött: \"%1$s\"</string>
+    <string name="link_error_renderer">A linkben megadott renderelő ezen az eszközön nem érhető el: %1$s</string>
+    <string name="link_error_control_layout">Ez nem kezelőszerv-elrendezés: %1$s</string>
+    <string name="link_error_java">A linkben megadott Java Runtime nincs telepítve: %1$s</string>
+    <string name="link_copy_value">%1$s másolása</string>
+    <string name="link_copy_original">%1$s másolása (eredeti)</string>
+    <string name="link_copy_new">%1$s másolása (új)</string>
+    <string name="link_key_minecraft">Minecraft</string>
+    <string name="link_key_url">Packwiz</string>
+    <string name="link_key_ram">Memória</string>
+    <string name="link_key_renderer">Renderelő</string>
+    <string name="link_key_control">Kezelőszervek</string>
+    <string name="link_key_java">Java</string>
+    <string name="link_value_default">(alapértelmezett)</string>
+    <string name="link_value_ram">%1$d MB</string>
+    <string name="link_import_title">%1$s profil hozzáadása</string>
+    <string name="link_update_title">%1$s profil frissítése</string>
+    <string name="link_import_download">A modpack fájljai az Indítás megnyomásakor töltődnek le.</string>
+    <string name="link_import_done">Profil hozzáadva: %1$s</string>
+    <string name="link_selected">A profil már naprakész, kiválasztva</string>
+    <string name="link_update_worlds">A világok megmaradnak.</string>
+    <string name="link_update_done">Profil frissítve: %1$s</string>
+
+    <!--
+        Upstream strings.xml texts the Crowdin Hungarian lacks. When an upstream merge brings one into
+        strings.xml here, the build fails with "Duplicate resources": drop the entry here, Crowdin's wins.
+    -->
+    <string name="mcl_setting_renderer_ng_gl4es">Krypton Wrapper - (összes verzió, gyors)</string>
+    <string name="mcl_setting_renderer_vulkan_kopper_zink">Kopper Zink (Vulkan) - (összes verzió, közepes)</string>
+    <string name="autorendererselectfailed">Az automatikus renderelőválasztás nem sikerült, marad a HolyGL4ES</string>
+    <string name="mcl_gamepad_SDL">SDL kontrollerkezelés bekapcsolása</string>
+    <string name="mcl_gamepad_SDL_subtitle">A kontrollert az SDL kezeli, ezt több mod támogatja. Kikapcsolva a GLFW marad.</string>
+    <string name="mcl_gamepad_forcedSDL">SDL kontrollerkezelés kényszerítése</string>
+    <string name="mcl_gamepad_forcedSDL_subtitle">A Legacy4J régi verzióinál is lehetővé teheti az SDL használatát</string>
+    <string name="preference_category_SDL_settings">SDL beállítások</string>
+    <string name="mcl_setting_subtitle_grab_mouse">A kurzor a játékon belül marad, így az egér nem kattint a képernyős kezelőszervekre.</string>
+    <string name="mcl_setting_title_keyboard_panning">Képernyő eltolása a billentyűzetnél</string>
+    <string name="mcl_setting_subtitle_keyboard_panning">Felfelé tolja a képet, amikor nyitva van a billentyűzet.</string>
+    <string name="neoforge_dl_searching">NeoForge verzió számának keresése</string>
+    <string name="newdl_downloading_jre_runtime">Java %s Runtime letöltése (%.2f/%.2f MB)</string>
+    <string name="mg_renderer_title_timerQueryExt">GPU-kihasználtság kikapcsolása az F3 menüben</string>
+    <string name="mg_renderer_summary_timerQueryExt">Egyes Mali GPU-s eszközökön megszünteti a véletlen összeomlásokat nyitott F3 menünél</string>
+    <string name="preference_ANGLE_only">Csak ANGLE esetén</string>
+    <string name="mg_renderer_title_angleDepthClearFixMode">A kéz és a kézben tartott tárgy ne lógjon bele a blokkokba</string>
+    <string name="mg_renderer_summary_angleDepthClearFixMode">Csak az ANGLE-re hat, ronthatja a teljesítményt.</string>
+    <string name="mg_renderer_title_multidrawCompute">Multidraw emuláció compute shaderekkel</string>
+    <string name="mg_renderer_summary_multidrawCompute">A multidraw emulációhoz compute shadereket használ</string>
+    <string name="mg_renderer_title_dsaExt">Kísérleti Direct State Access bővítmény felkínálása</string>
+    <string name="mg_renderer_summary_dsaExt">Segíthet az Iris shaderpackoknál, az AcceleratedRendering modhoz kötelező</string>
+    <string name="mg_renderer_title_fsr">AMD FSR 1 felskálázás</string>
+    <string name="demo_versions_supported">Demo fiókkal csak a Vanilla 1.3.1 és újabb verziók támogatottak</string>
+    <string name="demo_unsupported">A demo profil nem támogatott</string>
+    <string name="change_account">Ehhez a funkcióhoz válts másik fiókra</string>
+    <string name="feature_requires_java_account">Ehhez a funkcióhoz olyan Microsoft-fiók kell, amelyhez megvan a Minecraft: Java Edition.</string>
+    <string name="delete_account_and_login">Fiók törlése és bejelentkezés</string>
+    <string name="account_corrupted">A kiválasztott fiók sérült</string>
+    <string name="minecraft_no_username_set">Még nincs Minecraft-felhasználóneved! Bejelentkezés előtt állítsd be a Minecraft weboldalán!</string>
+    <string name="preference_force_enable_touchcontroller_title">TouchController kényszerített bekapcsolása</string>
+    <string name="preference_force_enable_touchcontroller_description">A TouchController integráció akkor is bekapcsol, ha a mod fájlja nem található.</string>
+    <string name="preference_touchcontroller_vibrate_length_description">A rezgés hossza TouchController használatakor.</string>
+    <string name="error_vanilla_json_corrupt">A vanilla json sérültnek tűnik. Kérlek, jelentsd a hibát GitHubon vagy Discordon.</string>
+    <string name="preference_ask_for_microphone_title">Mikrofon engedélyezése</string>
+    <string name="preference_ask_for_microphone_description">Kattints a mikrofon-engedély újbóli igényléséhez, ami a hangcsevegő modokhoz (pl. Simple Voice Chat) szükséges.</string>
+    <string name="oldL4JFound">A Legacy4J olyan verzióját használod, amelyben még nincsenek benne az androidos javítások! A legjobb élményhez kapcsold be kézzel az SDL-t a kontroller beállításainál!</string>
+    <string name="global_warning">Figyelem!</string>
+    <string name="controllableFound">A Controllable jelenleg indításkor véletlenszerűen összeomolhat. Próbálkozz újra, amíg el nem indul, vagy használj helyette másik modot, például a Controlify-t.</string>
+    <string name="sodium_warning_title">Sodium észlelve!</string>
+    <string name="sodium_warning_message">Úgy tűnik, Sodiumot használsz. Ez nem támogatott, grafikai hibákat vagy összeomlást okozhat. Kérlek, távolítsd el, és vele együtt az összes rá épülő modot is.</string>
+    <string name="delete_sodium">Sodium törlése és indítás</string>
+    <string name="sodium_override_title">Sodium futtatása mindenképp</string>
+    <string name="sodium_override_summaryOff">A Sodium grafikai hibákat és összeomlást okozhat. Figyelmeztettünk.</string>
+    <string name="sodium_override_summaryOn">A Sodium nem támogatott. Ha hibába ütközöl, nem kapsz segítséget.</string>
+    <string name="not_modpack_file">Ez nem modpack fájl!</string>
+    <string name="global_not_installed">Nincs telepítve</string>
+    <string name="global_download">Letöltés</string>
+    <string name="global_installing">Telepítés…</string>
+    <string name="multirt_no_internet">A letöltés nem sikerült, ellenőrizd az internetkapcsolatot.</string>
+    <string name="error_key_unsupported">Hiba! A gombhoz rendelt billentyű érvénytelen. Frissítetted már az appot?</string>
+    <string name="error_invalid_value">Hiba! Érvénytelen érték!</string>
+    <string name="create_lwjgl3ify_profile">LWJGL3ify profil létrehozása</string>
+    <string name="select_lwjgl3ify_version">LWJGL3ify verzió kiválasztása</string>
+    <string name="lwjgl3ify_installer_available_versions">Támogatott LWJGL3ify verziók</string>
+    <string name="lwjgl3ify_installer_broken_versions">Hibás LWJGL3ify verziók (SDL)</string>
+    <string name="new_default_controls">Az új alapértelmezett kezelőszervek a new_default.json fájlba kerültek. Próbáld ki!</string>
+    <string name="import_modpack_start">Modpack importálása…</string>
+    <string name="import_modpack_hash">Modpack fájl ellenőrzőösszegének számítása… (%s MB/ %s MB)</string>
+    <string name="import_modpack_json">Modpack adatainak beolvasása…</string>
+    <string name="import_modpack_copy">Modpack fájl másolása a gyorsítótárba… (%s MB/ %s MB)</string>
+</resources>
