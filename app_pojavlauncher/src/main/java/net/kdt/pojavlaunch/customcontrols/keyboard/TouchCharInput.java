@@ -12,6 +12,8 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import net.kdt.pojavlaunch.MinecraftGLSurface;
 import net.kdt.pojavlaunch.R;
@@ -37,6 +39,9 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
 
     private boolean mIsDoingInternalChanges = false;
     private CharacterSenderStrategy mCharacterSender;
+    private InputMethodManager getInputMethodManager() {
+        return (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
+    }
 
     /**
      * When we change from app to app, the keyboard gets disabled.
@@ -65,7 +70,8 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
      * Toggle on and off the soft keyboard, depending of the state
      */
     public void switchKeyboardState(){
-        if(hasFocus()){
+        // A keyboard closed by its own button leaves the focus here: the next press opens it again
+        if(hasFocus() && isKeyboardShown()){
             clear();
             disable();
         }else{
@@ -96,13 +102,26 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
             SDLActivity.enableSDLEditKeyboard();
             return;
         }
-        // Allow, regardless of whether or not a hardware keyboard is declared
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(INPUT_METHOD_SERVICE);
-        imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
         setEnabled(true);
         setFocusable(true);
         setVisibility(VISIBLE);
         requestFocus();
+        showKeyboard(0);
+    }
+
+    /**
+     * Only the view the input method serves can show the keyboard, and a new focus reaches the input method
+     * asynchronously: retry until it accepts. Upstream asked before taking the focus, which failed every time.
+     */
+    private void showKeyboard(int attempt) {
+        if (!hasFocus()) return;
+        if (getInputMethodManager().showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)) return;
+        if (attempt < 10) postDelayed(() -> showKeyboard(attempt + 1), 50);
+    }
+
+    private boolean isKeyboardShown() {
+        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(this);
+        return insets == null || insets.isVisible(WindowInsetsCompat.Type.ime());
     }
 
     /** Lose ability to exist, take focus and have some text being input */
