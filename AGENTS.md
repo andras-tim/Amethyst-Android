@@ -20,6 +20,13 @@ git diff --stat "$(git merge-base upstream/v3_openjdk HEAD)" HEAD
   ours.
 - Report the result with the change: commits behind, conflicting files, and what the change added to them.
 
+## The setup site describes this app
+
+The setup site (`docs/` and `tools/site.py` of `andras-tim/mc-dras-modpack`) walks players through this app: its
+screens and labels as a Hungarian phone shows them, the browser login icon, the profile editor fields and the APK
+size. A change to any of them updates the site in the same round; the list of what the site repeats is in the infra
+repo's `docker.mc-java` `DEVELOPMENT.md`.
+
 ## Releases
 
 Release tags are `<upstream version>-dras.<n>` (e.g. `1.1.7-dras.7`): signed, annotated, with a bullet changelog in the
