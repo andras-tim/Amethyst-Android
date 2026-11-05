@@ -52,6 +52,7 @@ public class ControlLayout extends FrameLayout {
 	private boolean mModifiable = false;
 	private boolean mIsModified;
 	private boolean mControlVisible = false;
+	private boolean mImeVisible = false;
 
 	private EditControlSideDialog mControlDialog = null;
 	private ControlHandleView mHandleView;
@@ -255,6 +256,19 @@ public class ControlLayout extends FrameLayout {
 			button.setVisible(((button.getProperties().displayInGame && isGrabbing()) || (button.getProperties().displayInMenu && !isGrabbing())) && isVisible);
 			if(button instanceof ControlButton) ((ControlButton) button).showControlState(isVisible);
 		}
+	}
+
+	/** A keyboard button steps aside while the soft keyboard is up: a tap on the game closes the keyboard instead. */
+	public void setImeVisible(boolean isVisible) {
+		if (mImeVisible == isVisible) return;
+		mImeVisible = isVisible;
+		for(ControlInterface button : getButtonChildren()) {
+			if (button.getProperties().containsKeycode(ControlData.SPECIALBTN_KEYBOARD)) button.onGrabState(isGrabbing());
+		}
+	}
+
+	public boolean isHiddenByIme(ControlData data) {
+		return mImeVisible && data.containsKeycode(ControlData.SPECIALBTN_KEYBOARD);
 	}
 
 	public void setModifiable(boolean isModifiable) {

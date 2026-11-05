@@ -139,6 +139,14 @@ public class TouchCharInput extends androidx.appcompat.widget.AppCompatEditText 
         if (attempt < 10) postDelayed(() -> showKeyboard(attempt + 1), 50);
     }
 
+    /** Closes the keyboard if it is up; false when it was not. */
+    public boolean closeKeyboard() {
+        if (!isEnabled() || !hasFocus() || !isKeyboardShown()) return false;
+        getInputMethodManager().hideSoftInputFromWindow(getWindowToken(), 0);
+        disable();
+        return true;
+    }
+
     private boolean isKeyboardShown() {
         WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(this);
         return insets == null || insets.isVisible(WindowInsetsCompat.Type.ime());

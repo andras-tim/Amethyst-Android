@@ -184,6 +184,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             @NonNull
             @Override
             public WindowInsetsCompat onProgress(@NonNull WindowInsetsCompat insets, @NonNull List<WindowInsetsAnimationCompat> runningAnimations) {
+                refreshImeVisible(insets);
                 imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
                 refreshImeTranslation();
                 return insets;
@@ -197,6 +198,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             }
         });
         ViewCompat.setOnApplyWindowInsetsListener(contentFrame, (v, insets) -> {
+            refreshImeVisible(insets);
             // Only refresh translation if IME change insets itself, not the animation
             if (!hasOngoingImeAnimation) {
                 imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
@@ -736,6 +738,11 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     public void updateInputAreaRect(@Nullable RectF rect) {
         inputAreaRect = rect;
         refreshImeTranslation();
+    }
+
+    /** By visibility, not height: a floating keyboard (Samsung) has no bottom inset. */
+    private void refreshImeVisible(WindowInsetsCompat insets) {
+        if (mControlLayout != null) mControlLayout.setImeVisible(insets.isVisible(WindowInsetsCompat.Type.ime()));
     }
 
     private void refreshImeTranslation() {

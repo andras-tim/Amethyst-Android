@@ -80,6 +80,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
             .remapDpad(true);
     private RemapperManager mInputManager = new RemapperManager(getContext(), mRemapperBuilder);
     private GamepadTouchControls mTouchControls;
+    private boolean mSwallowGesture;
 
     /* Sensitivity, adjusted according to screen size */
     private final double mSensitivityFactor = (1.4 * (1080f/ Tools.getDisplayMetrics((Activity) getContext()).heightPixels));
@@ -249,6 +250,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
         // Kinda need to send this back to the layout
         if(((ControlLayout)getParent()).getModifiable()) return false;
         if(mTouchControls != null) mTouchControls.onTouch();
+        if(closesKeyboard(e)) return true;
 
         // Looking for a mouse to handle, won't have an effect if no mouse exists.
         for (int i = 0; i < e.getPointerCount(); i++) {
@@ -276,6 +278,19 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
         TouchControllerUtils.processTouchEvent(e, this);
         if (mIngameProcessor == null || mInGUIProcessor == null) return true;
         return mCurrentTouchProcessor.processTouchEvent(e);
+    }
+
+    /**
+     * A tap on the game closes the soft keyboard. In the game the whole gesture stops here, so it neither hits nor
+     * places; on a screen the tap still clicks.
+     */
+    private boolean closesKeyboard(MotionEvent e) {
+        int action = e.getActionMasked();
+        if(action == MotionEvent.ACTION_DOWN && touchCharInput != null && touchCharInput.closeKeyboard())
+            mSwallowGesture = CallbackBridge.isGrabbing();
+        if(!mSwallowGesture) return false;
+        if(action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) mSwallowGesture = false;
+        return true;
     }
 
     public void setTouchControls(GamepadTouchControls touchControls) {

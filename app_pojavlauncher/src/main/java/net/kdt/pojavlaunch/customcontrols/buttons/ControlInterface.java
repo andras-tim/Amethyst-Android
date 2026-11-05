@@ -51,8 +51,10 @@ public interface ControlInterface extends View.OnLongClickListener, GrabListener
     void cloneButton();
 
     default void setVisible(boolean isVisible) {
-        if(getProperties().isHideable)
-            getControlView().setVisibility(isVisible ? VISIBLE : GONE);
+        if(!getProperties().isHideable) return;
+        boolean hiddenByIme = getControlView().getParent() instanceof ControlLayout
+                && getControlLayoutParent().isHiddenByIme(getProperties());
+        getControlView().setVisibility(isVisible && !hiddenByIme ? VISIBLE : GONE);
     }
 
     void sendKeyPresses(boolean isDown);
