@@ -58,6 +58,7 @@ public class ControlData {
     public String dynamicX, dynamicY;
     public boolean isToggle, passThruEnabled;
     public String name;
+    public String icon;         // Material Symbols name shown above the label, see ControlIcon
     public int[] keycodes;      //Should store up to 4 keys
     public float opacity;       //Alpha value from 0 to 1;
     public int bgColor;
@@ -153,6 +154,7 @@ public class ControlData {
                 controlData.isSwipeable,
                 controlData.passThruEnabled
         );
+        icon = controlData.icon;
     }
 
     public static ControlData[] getSpecialButtons() {

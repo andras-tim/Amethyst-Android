@@ -41,6 +41,10 @@ Amethyst team. Everything below the line is the upstream README.
   an accented letter is only typed. The keyboard button of the touch controls opens it, and steps aside while the
   keyboard is up: a tap on the game closes the keyboard. In the game that tap neither hits nor places; on a screen it
   still clicks.
+- **Icons on control buttons.** A button of a control layout can name a
+  [Material Symbols](https://fonts.google.com/icons) icon in its `icon` field (e.g. `"icon": "backpack"`): it is
+  shown above the label, sized to the button. The font (Apache License 2.0) is built by
+  `scripts/material_symbols_font.sh`. The layout editor does not edit the field yet; upstream ignores it.
 - **No Controllable workaround.** Upstream warns about a random crash for any mod jar named `controllable` and races
   its SDL2 extraction with a delete thread. The fork leaves both out: a Controllable on GLFW, such as
   [Controllable::Dras](https://github.com/andras-tim/Controllable), never extracts SDL2 on Android.

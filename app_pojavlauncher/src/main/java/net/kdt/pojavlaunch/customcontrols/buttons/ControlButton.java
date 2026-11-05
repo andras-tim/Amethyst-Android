@@ -94,6 +94,7 @@ public class ControlButton extends TextView implements ControlInterface {
         }
 
         setText(properties.name);
+        ControlIcon.apply(this, properties);
     }
 
     @Override
