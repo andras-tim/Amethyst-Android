@@ -39,6 +39,9 @@ Amethyst team. Everything below the line is the upstream README.
   of the game and the mods work from the phone's keyboard (`J` opens the JourneyMap map, `E` the inventory), and chat
   and text fields still get the text. The keyboard shows lowercase letters without suggestions; Shift types capitals,
   an accented letter is only typed. The keyboard button of the touch controls opens and closes it on every press.
+- **No Controllable workaround.** Upstream warns about a random crash for any mod jar named `controllable` and races
+  its SDL2 extraction with a delete thread. The fork leaves both out: a Controllable on GLFW, such as
+  [Controllable::Dras](https://github.com/andras-tim/Controllable), never extracts SDL2 on Android.
 - **Memory per profile.** "Memory (MB)" in the profile editor overrides the global setting for that profile.
 - **Adding a pack by hand.** "Create packwiz pack profile (URL)" in the new profile list asks for the `pack.toml` URL
   and then works like the import link.

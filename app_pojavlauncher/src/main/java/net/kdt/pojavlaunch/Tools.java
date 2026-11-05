@@ -434,7 +434,6 @@ public final class Tools {
         }
         LauncherProfiles.load();
         File gamedir = Tools.getGameDirPath(minecraftProfile);
-        startControllableMitigation(activity, gamedir);
         startOldLegacy4JMitigation(activity, gamedir);
         if(affectedByLTWRenderDistanceIssue()) {
             LifecycleAwareAlertDialog.DialogCreator dialogCreator = ((alertDialog, dialogBuilder) ->
@@ -553,67 +552,6 @@ public final class Tools {
         // If we returned, this means that the JVM exit dialog has been shown and we don't need to be active anymore.
         // We never return otherwise. The process will be killed anyway, and thus we will become inactive
     }
-    private static Logger.eventLogListener controllableMitigationLogListener;
-    /*
-     * This is does not work when debugging. This is not reliable.
-     * This is a monstrosity that races the mod, trying to ensure that when the folder is checked
-     * after extraction but before dlopen, it is empty, so it loads the bundled SDL2 we have instead
-     */
-    private static void startControllableMitigation(Activity activity ,File gamedir) {
-        String TAG = "ControllableMitigation";
-        File deleted = new File(gamedir + "/controllable_natives/SDL");
-        boolean hasControllable = false;
-        File modsDir = new File(gamedir, "mods");
-        File[] mods = modsDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
-        if (mods != null) {
-            for (File file : mods) {
-                String name = file.getName();
-                if (name.contains("controllable")) {
-                    hasControllable = true;
-                    break;
-                }
-            }
-        }
-        if (hasControllable) {
-            Tools.runOnUiThread(() -> {
-                Tools.dialog(activity, activity.getString(R.string.global_warning), activity.getString(R.string.controllableFound));
-            });
-            Thread mitigationThread = new Thread(() -> {
-                // This is total garbage but it seems to be the best jank for the job
-                Log.i(TAG, "Controllable detected! Starting mitigation thread");
-                try {org.apache.commons.io.FileUtils.deleteDirectory(deleted);} catch (IOException ignored) {}
-                while (!Thread.currentThread().isInterrupted()) {
-                    // Looks for controllable_natives/SDL/<sdl_version_number>/libSDL2.so and
-                    // deletes it. We can assume array index 0 because this dir gets fully deleted
-                    // before the loop is started.
-                    if (deleted.isDirectory()) {
-                        if (deleted.listFiles().length > 0) {
-                            if (deleted.listFiles()[0].listFiles().length > 0) {
-                                if (deleted.listFiles()[0].listFiles()[0].exists()) {
-                                    deleted.listFiles()[0].listFiles()[0].delete();
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                // We can end here because SdlNativeLibraryLoader only extracts libSDL2.so once
-                // If NativeLibrary can't find it in the folder to load() it uses java.library.path
-                Log.i(TAG, "Success! Ending Controllable crash mitigation..");
-            });
-            mitigationThread.start();
-            controllableMitigationLogListener = loggedLine -> {
-                // Hard off switch if it somehow didn't delete anything, just in case.
-                if (loggedLine.contains("Sound engine started") && mitigationThread.isAlive()) {
-                    Log.i(TAG, "Nothing happened. Ending Controllable crash mitigation..");
-                    Logger.removeLogListener(controllableMitigationLogListener);
-                    mitigationThread.interrupt();
-                }
-            };
-            Logger.addLogListener(controllableMitigationLogListener);
-        }
-    }
-
     private static Logger.eventLogListener oldL4JMitigationLogListener;
     /// TODO: Remove when the time is right
     /**
