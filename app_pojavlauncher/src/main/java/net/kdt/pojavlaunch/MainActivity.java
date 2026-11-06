@@ -555,6 +555,10 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         mQuickSettingSideDialog.appear(true);
     }
 
+    public static boolean isMouseShown() {
+        return touchpad != null && touchpad.getDisplayState();
+    }
+
     public static void toggleMouse(Context ctx) {
         if (CallbackBridge.isGrabbing()) return;
 

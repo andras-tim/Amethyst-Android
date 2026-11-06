@@ -249,6 +249,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     public boolean onTouchEvent(MotionEvent e) {
         // Kinda need to send this back to the layout
         if(((ControlLayout)getParent()).getModifiable()) return false;
+        ((ControlLayout)getParent()).extras().endLoading();
         if(mTouchControls != null) mTouchControls.onTouch();
         if(closesKeyboard(e)) return true;
 

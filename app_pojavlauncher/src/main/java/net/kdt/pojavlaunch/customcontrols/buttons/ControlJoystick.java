@@ -66,6 +66,11 @@ public class ControlJoystick extends JoystickView implements ControlInterface {
                 if (mLastDirectionInt != mCurrentDirectionInt) {
                     sendDirectionalKeycode(mLastDirectionInt, false);
                     sendDirectionalKeycode(mCurrentDirectionInt, true);
+                    // The other buttons on this side fade while the joystick steers, see ControlLayoutExtras.setDragging
+                    if (getParent() instanceof ControlLayout) {
+                        getControlLayoutParent().extras().setDragging(
+                                mCurrentDirectionInt == DIRECTION_NONE ? null : ControlJoystick.this);
+                    }
                 }
             }
 

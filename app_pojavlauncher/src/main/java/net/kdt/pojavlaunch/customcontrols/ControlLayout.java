@@ -53,6 +53,7 @@ public class ControlLayout extends FrameLayout {
 	private boolean mIsModified;
 	private boolean mControlVisible = false;
 	private boolean mImeVisible = false;
+	private final ControlLayoutExtras mExtras = new ControlLayoutExtras(this);
 
 	private EditControlSideDialog mControlDialog = null;
 	private ControlHandleView mHandleView;
@@ -122,6 +123,7 @@ public class ControlLayout extends FrameLayout {
 		}
 
 		mLayout.scaledAt = LauncherPreferences.PREF_BUTTONSIZE;
+		mExtras.startLoading(mLayout, mModifiable);
 
 		setModified(sanitizedModified);
 		mButtons = null;
@@ -235,7 +237,12 @@ public class ControlLayout extends FrameLayout {
 		setModified(false);
 	}
 
+	public ControlLayoutExtras extras() {
+		return mExtras;
+	}
+
 	public void toggleControlVisible(){
+		if (mExtras.toggleControlVisible()) return;
 		mControlVisible = !mControlVisible;
 		setControlVisible(mControlVisible);
 	}
@@ -253,7 +260,7 @@ public class ControlLayout extends FrameLayout {
 
 		mControlVisible = isVisible;
 		for(ControlInterface button : getButtonChildren()){
-			button.setVisible(((button.getProperties().displayInGame && isGrabbing()) || (button.getProperties().displayInMenu && !isGrabbing())) && isVisible);
+			button.setVisible(mExtras.isButtonShown(button));
 			if(button instanceof ControlButton) ((ControlButton) button).showControlState(isVisible);
 		}
 	}
@@ -457,6 +464,7 @@ public class ControlLayout extends FrameLayout {
 
 	public boolean hasMenuButton() {
 		for(ControlInterface controlInterface : getButtonChildren()){
+			if (controlInterface.getProperties().longPressKeycode == ControlData.SPECIALBTN_MENU) return true;
 			for (int keycode : controlInterface.getProperties().keycodes) {
 				if (keycode == ControlData.SPECIALBTN_MENU) return true;
 			}

@@ -27,7 +27,7 @@ public final class ControlIcon {
     private static final float LABEL_SHARE = 0.135f;
     private static final float MIN_LABEL_DP = 7.5f;
     private static final float DEFAULT_LABEL_SP = 14;
-    private static Typeface sTypeface;
+    private static Typeface sTypeface, sOutlineTypeface;
 
     private ControlIcon() {}
 
@@ -47,7 +47,8 @@ public final class ControlIcon {
         int gap = Math.round(density);
 
         view.setTextSize(TypedValue.COMPLEX_UNIT_PX, labelSize);
-        GlyphDrawable icon = new GlyphDrawable(typeface(context), data.icon, iconSize);
+        GlyphDrawable icon = new GlyphDrawable(typeface(context, false), typeface(context, true), data.icon, iconSize);
+        icon.setOutline(data.iconOutline);
         view.setCompoundDrawables(null, icon, null, null);
         view.setCompoundDrawablePadding(gap);
         // TextView pins a top drawable to the top padding: center the icon and the label together
@@ -56,24 +57,42 @@ public final class ControlIcon {
         view.setPadding(view.getPaddingLeft(), top, view.getPaddingRight(), top);
     }
 
-    private static Typeface typeface(Context context) {
+    /** Draws the icon outlined (true) or filled (false); a button without an icon is left alone. */
+    public static void setOutline(TextView view, boolean outline) {
+        Drawable icon = view.getCompoundDrawables()[1];
+        if (icon instanceof GlyphDrawable) ((GlyphDrawable) icon).setOutline(outline);
+    }
+
+    private static Typeface typeface(Context context, boolean outline) {
+        if (outline) {
+            if (sOutlineTypeface == null) sOutlineTypeface = ResourcesCompat.getFont(context, R.font.material_symbols_rounded_outline);
+            return sOutlineTypeface;
+        }
         if (sTypeface == null) sTypeface = ResourcesCompat.getFont(context, R.font.material_symbols_rounded);
         return sTypeface;
     }
 
     private static final class GlyphDrawable extends Drawable {
         private final Paint mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Typeface mFilled, mOutline;
         private final String mName;
         private final int mSize;
 
-        GlyphDrawable(Typeface typeface, String name, float size) {
+        GlyphDrawable(Typeface filled, Typeface outline, String name, float size) {
+            mFilled = filled;
+            mOutline = outline;
             mName = name;
             mSize = Math.round(size);
-            mPaint.setTypeface(typeface);
+            mPaint.setTypeface(filled);
             mPaint.setTextSize(size);
             mPaint.setColor(Color.WHITE);
             mPaint.setTextAlign(Paint.Align.CENTER);
             setBounds(0, 0, mSize, mSize);
+        }
+
+        void setOutline(boolean outline) {
+            mPaint.setTypeface(outline ? mOutline : mFilled);
+            invalidateSelf();
         }
 
         @Override

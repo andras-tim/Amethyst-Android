@@ -11,6 +11,8 @@ import net.kdt.pojavlaunch.customcontrols.ControlDrawerData;
 import net.kdt.pojavlaunch.customcontrols.ControlLayout;
 import net.kdt.pojavlaunch.customcontrols.handleview.EditControlSideDialog;
 
+import org.lwjgl.glfw.CallbackBridge;
+
 import java.util.ArrayList;
 
 
@@ -51,10 +53,17 @@ public class ControlDrawer extends ControlButton {
 
     private void switchButtonVisibility(){
         areButtonsVisible = !areButtonsVisible;
-        int visibility = areButtonsVisible ? VISIBLE : GONE;
         for(ControlButton button : buttons){
-            button.getControlView().setVisibility(visibility);
+            button.getControlView().setVisibility(areButtonsVisible && isShownNow(button) ? VISIBLE : GONE);
         }
+    }
+
+    /** A drawer button follows its own in-game and in-menu flags, as a top-level button does; upstream showed all. */
+    private boolean isShownNow(ControlButton button) {
+        if (!(getParent() instanceof ControlLayout) || getControlLayoutParent().getModifiable()) return true;
+        ControlData data = button.getProperties();
+        boolean grabbing = CallbackBridge.isGrabbing();
+        return (data.displayInGame && grabbing) || (data.displayInMenu && !grabbing);
     }
 
     //Syncing stuff
@@ -131,7 +140,7 @@ public class ControlDrawer extends ControlButton {
         setVisibility(visibility);
         if(visibility == GONE || areButtonsVisible) {
             for(ControlSubButton button : buttons){
-                button.getControlView().setVisibility(isVisible ? VISIBLE : (!mProperties.isHideable && getVisibility() == GONE) ? VISIBLE : View.GONE);
+                button.getControlView().setVisibility(isVisible ? (isShownNow(button) ? VISIBLE : GONE) : (!mProperties.isHideable && getVisibility() == GONE) ? VISIBLE : View.GONE);
             }
         }
     }

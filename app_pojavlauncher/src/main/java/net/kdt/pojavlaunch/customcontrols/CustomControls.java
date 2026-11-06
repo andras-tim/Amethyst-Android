@@ -14,6 +14,10 @@ public class CustomControls {
 	public List<ControlData> mControlDataList;
 	public List<ControlDrawerData> mDrawerDataList;
 	public List<ControlJoystickData> mJoystickDataList;
+	/** While the game loads every control stays hidden, until a log line contains this text; empty: always shown */
+	public String hideUntilLog;
+	/** While a finger drags on a joystick or a look button, the other buttons on its half fade to this; null: no fading */
+	public Float dragFadeOpacity;
 	public CustomControls() {
 		this(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 	}

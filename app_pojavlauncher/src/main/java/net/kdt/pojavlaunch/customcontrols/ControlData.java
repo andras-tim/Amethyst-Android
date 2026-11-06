@@ -59,6 +59,18 @@ public class ControlData {
     public boolean isToggle, passThruEnabled;
     public String name;
     public String icon;         // Material Symbols name shown above the label, see ControlIcon
+    public boolean iconOutline; // the icon drawn as its outline
+    public boolean extended;    // shown only while the controls toggle shows everything, see ControlLayout
+    public int activeStrokeColor; // a ring of this colour marks the on state instead of the accent fill; 0: none
+    public float activeStrokeWidth; // dp; 0: 1.5
+    public int longPressKeycode;  // sent instead of the keycodes when the button is held; 0: none (GLFW or SPECIALBTN_*)
+    public int longPressTime;     // ms the button must be held for longPressKeycode; 0: the system long press timeout
+    // With passThruEnabled a drag from the press point turns the camera as a joystick does; see ControlButtonExtras
+    public boolean lookJoystick;
+    public float lookDeadzone;      // dp; 0: 25
+    public float lookSpeed;         // cursor px per second; 0: 400
+    public float lookVerticalFactor; // of lookSpeed for up and down; 0: 1
+    public int lookDirections;      // the drag snaps to this many directions; 0: 8
     public int[] keycodes;      //Should store up to 4 keys
     public float opacity;       //Alpha value from 0 to 1;
     public int bgColor;
@@ -155,6 +167,17 @@ public class ControlData {
                 controlData.passThruEnabled
         );
         icon = controlData.icon;
+        iconOutline = controlData.iconOutline;
+        extended = controlData.extended;
+        activeStrokeColor = controlData.activeStrokeColor;
+        activeStrokeWidth = controlData.activeStrokeWidth;
+        longPressKeycode = controlData.longPressKeycode;
+        longPressTime = controlData.longPressTime;
+        lookJoystick = controlData.lookJoystick;
+        lookDeadzone = controlData.lookDeadzone;
+        lookSpeed = controlData.lookSpeed;
+        lookVerticalFactor = controlData.lookVerticalFactor;
+        lookDirections = controlData.lookDirections;
     }
 
     public static ControlData[] getSpecialButtons() {

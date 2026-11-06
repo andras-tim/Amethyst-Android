@@ -43,8 +43,29 @@ Amethyst team. Everything below the line is the upstream README.
   still clicks.
 - **Icons on control buttons.** A button of a control layout can name a
   [Material Symbols](https://fonts.google.com/icons) icon in its `icon` field (e.g. `"icon": "backpack"`): it is
-  shown above the label, sized to the button. The font (Apache License 2.0) is built by
-  `scripts/material_symbols_font.sh`. The layout editor does not edit the field yet; upstream ignores it.
+  shown above the label, sized to the button; `"iconOutline": true` draws its outlined variant. The fonts (filled
+  and outlined, Apache License 2.0) are built by `scripts/material_symbols_font.sh`. The layout editor does not edit
+  the field yet; upstream ignores it.
+- **More control layout fields.** Button behavior is set by the layout, not by the launcher: a layout without these
+  fields works as upstream. Upstream ignores them, and the layout editor does not edit them yet.
+  - `extended` on a button: shown only when the controls are fully open. The show/hide button (`-2`) then cycles
+    half and all on a tap; its icon is outlined while the controls are hidden.
+  - `activeStrokeColor` (ARGB int) and `activeStrokeWidth` (dp, default 1.5): an on/off button draws a ring in this
+    color when on, instead of the press color. On/off buttons: a toggle, show/hide while all are shown, and the
+    virtual mouse while shown.
+  - `longPressKeycode` and `longPressTime` (ms, default the system long press timeout): a tap sends the button's keys
+    on release, a hold sends this key. Its value can be any key or special code: `-9` opens the launcher menu, so
+    the launcher's own menu button is not shown; `-101` hides every control, and the show/hide button brings them
+    back.
+  - `lookJoystick` on a pass-through button: a drag that starts on it keeps the button down and turns the camera, as
+    the movement joystick moves. Past `lookDeadzone` (dp, default 25) the drag snaps to one of `lookDirections`
+    (default 8), and the camera turns at `lookSpeed` (cursor px per second, default 400) however far the finger
+    goes. `lookVerticalFactor` (default 1) scales the up and down speed.
+  - `hideUntilLog` on the layout: no button shows until this text appears in the game log (e.g. `Game took`), so
+    the loading screen stays clear.
+  - `dragFadeOpacity` on the layout: while a joystick or a look button is held, the other buttons on that half of
+    the screen fade to this opacity and take no touches, so a finger sliding over them presses nothing.
+  - Drawer buttons honor `displayInGame` and `displayInMenu`.
 - **No Controllable workaround.** Upstream warns about a random crash for any mod jar named `controllable` and races
   its SDL2 extraction with a delete thread. The fork leaves both out: a Controllable on GLFW, such as
   [Controllable::Dras](https://github.com/andras-tim/Controllable), never extracts SDL2 on Android.

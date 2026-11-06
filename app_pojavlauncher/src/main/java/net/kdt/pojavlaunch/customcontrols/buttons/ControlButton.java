@@ -41,6 +41,7 @@ public class ControlButton extends TextView implements ControlInterface {
     private static final String ARROW_UP = "\u25b2";
     private static final String ARROW_DOWN = "\u25bc";
     protected boolean mIsPointerOutOfBounds = false;
+    private final ControlButtonExtras mExtras = new ControlButtonExtras(this);
 
     public ControlButton(ControlLayout layout, ControlData properties) {
         super(layout.getContext());
@@ -66,6 +67,9 @@ public class ControlButton extends TextView implements ControlInterface {
      */
     public void showControlState(boolean controlsVisible) {
         if (!mProperties.containsKeycode(ControlData.SPECIALBTN_TOGGLECTRL)) return;
+        // An icon on the toggle shows the state too: outlined while the controls are hidden, a ring when all show
+        ControlIcon.setOutline(this, !controlsVisible);
+        invalidate();
         if (!ARROW_UP.equals(mProperties.name) && !ARROW_DOWN.equals(mProperties.name)) return;
         setText(controlsVisible ? ARROW_UP : ARROW_DOWN);
     }
@@ -100,6 +104,7 @@ public class ControlButton extends TextView implements ControlInterface {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (mExtras.draw(canvas, mComputedRadius, mRectPaint)) return;
         if (mIsToggled || (!mProperties.isToggle && isActivated()))
             canvas.drawRoundRect(0, 0, getWidth(), getHeight(), mComputedRadius, mComputedRadius, mRectPaint);
     }
@@ -127,12 +132,16 @@ public class ControlButton extends TextView implements ControlInterface {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mExtras.ignoresTouch()) return false;
+        if (mExtras.hasLongPress()) return mExtras.handleLongPress(event);
         switch (event.getActionMasked()){
             case MotionEvent.ACTION_MOVE:
                 //Send the event to be taken as a mouse action
                 if(getProperties().passThruEnabled && CallbackBridge.isGrabbing()){
+                    if (mExtras.onPassThruMove(event)) break;
                     View gameSurface = getControlLayoutParent().getGameSurface();
                     if(gameSurface != null) gameSurface.dispatchTouchEvent(event);
+                    break;
                 }
 
                 //If out of bounds
@@ -165,17 +174,19 @@ public class ControlButton extends TextView implements ControlInterface {
                 if(!getProperties().isToggle){
                     sendKeyPresses(true);
                 }
+                mExtras.onDown(event);
                 break;
 
             case MotionEvent.ACTION_UP: // 1
             case MotionEvent.ACTION_CANCEL: // 3
             case MotionEvent.ACTION_POINTER_UP: // 6
-                if(getProperties().passThruEnabled){
+                if(getProperties().passThruEnabled && !getProperties().lookJoystick){
                     View gameSurface = getControlLayoutParent().getGameSurface();
                     if(gameSurface != null) gameSurface.dispatchTouchEvent(event);
                 }
                 if(mIsPointerOutOfBounds) getControlLayoutParent().onTouch(this, event);
                 mIsPointerOutOfBounds = false;
+                mExtras.onUp();
 
                 if(!triggerToggle()) {
                     sendKeyPresses(false);
@@ -216,7 +227,7 @@ public class ControlButton extends TextView implements ControlInterface {
         }
     }
 
-    private void sendSpecialKey(int keycode, boolean isDown){
+    void sendSpecialKey(int keycode, boolean isDown){
         switch (keycode) {
             case ControlData.SPECIALBTN_KEYBOARD:
                 if(isDown) MainActivity.switchKeyboardState();
@@ -226,8 +237,15 @@ public class ControlButton extends TextView implements ControlInterface {
                 if(isDown)getControlLayoutParent().toggleControlVisible();
                 break;
 
+            case ControlButtonExtras.SPECIALBTN_HIDECONTROLS:
+                if(isDown) getControlLayoutParent().extras().hideAllControls();
+                break;
+
             case ControlData.SPECIALBTN_VIRTUALMOUSE:
-                if(isDown) MainActivity.toggleMouse(getContext());
+                if(isDown) {
+                    MainActivity.toggleMouse(getContext());
+                    invalidate();
+                }
                 break;
 
             case ControlData.SPECIALBTN_MOUSEPRI:
