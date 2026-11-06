@@ -75,10 +75,17 @@ def getDrasVersionName = {
     return isRelease && describe ==~ /\S+-dras\.\d+/ ? describe : getVersionName()
 }
 
-// The dras number on top of upstream's fixed code: each release is a higher versionCode, an update for Android too
+// Every part of the tag in fixed digits, major|minor 2|patch 2|dras 3 (1.1.7-dras.13: 10107013), so each release has a
+// higher versionCode, an update for Android too, also when the upstream version moves on and the dras number restarts.
+// It stays above 10000012, the code of 1.1.7-dras.12 that counted the dras number only.
 def getDrasVersionCode = {
-    def match = getDrasDescribe() =~ /-dras\.(\d+)/
-    return 10000000 + (match.find() ? match.group(1).toInteger() : 0)
+    def match = getDrasDescribe() =~ /^(\d+)\.(\d+)\.(\d+)-dras\.(\d+)/
+    if (!match.find()) return 10000000
+    def (major, minor, patch, dras) = (1..4).collect { match.group(it).toInteger() }
+    if (minor > 99 || patch > 99 || dras > 999) {
+        throw new GradleException("${match.group(0)}: a part outgrows its digits in the versionCode")
+    }
+    return ((major * 100 + minor) * 100 + patch) * 1000 + dras
 }
 
 def getCFApiKey = {
